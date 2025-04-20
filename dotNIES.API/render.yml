@@ -1,0 +1,8 @@
+﻿services:
+  - type: web
+    name: dotNIES.API
+    env: docker
+    plan: free
+    region: belgium
+    dockerfilePath: ./Dockerfile
+    healthCheckPath: /health
