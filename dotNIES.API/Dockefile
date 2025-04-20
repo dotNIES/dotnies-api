@@ -1,0 +1,20 @@
+﻿# Gebruik de officiële .NET SDK image voor build
+FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
+
+WORKDIR /app
+
+# Kopieer csproj en restore als aparte stap
+COPY *.csproj ./
+RUN dotnet restore
+
+# Kopieer de rest van de code en publiceer
+COPY . ./
+RUN dotnet publish -c Release -o /out
+
+# Gebruik een kleinere runtime image voor productie
+FROM mcr.microsoft.com/dotnet/aspnet:8.0
+
+WORKDIR /app
+COPY --from=build /out ./
+
+ENTRYPOINT ["dotnet", "dotNIES.API.dll"]
