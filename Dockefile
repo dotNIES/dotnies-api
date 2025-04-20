@@ -2,7 +2,7 @@
 FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
 
 WORKDIR /app
-EXPOSE 10000  # Of dezelfde poort als fallback in Program.cs
+EXPOSE 8080  # Of dezelfde poort als fallback in Program.cs
 
 # Kopieer csproj en restore als aparte stap
 COPY *.csproj ./
