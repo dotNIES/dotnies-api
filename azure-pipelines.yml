@@ -1,0 +1,31 @@
+trigger:
+- main
+
+pool:
+  vmImage: 'windows-latest'
+
+variables:
+  buildConfiguration: 'Release'
+  github_repo: 'dotNIES/dotnies-api'
+  github_token: $(GitHubToken)
+
+steps:
+- task: UseDotNet@2
+  inputs:
+    packageType: 'sdk'
+    version: '8.0.1' # pas aan indien nodig
+
+- script: dotnet publish -c $(buildConfiguration) -o out
+  displayName: 'Build and publish project'
+
+- script: |
+    git config --global user.email "azuredevops@argonath.local"
+    git config --global user.name "Azure DevOps"
+    git init
+    git remote add github https://$(github_token)@github.com/$(github_repo).git
+    git checkout -b main
+    git add .
+    git commit -m "Automated commit from Azure DevOps"
+    git push github main --force
+  workingDirectory: 'out'
+  displayName: 'Push build to GitHub'
