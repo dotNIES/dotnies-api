@@ -8,6 +8,7 @@ builder.Services.AddSwaggerGen(c =>
     c.SwaggerDoc("v2", new OpenApiInfo { Title = "My API", Version = "v2" });
 });
 
+// Poort ophalen en gebruiken
 var port = Environment.GetEnvironmentVariable("PORT") ?? "8080";
 builder.WebHost.UseUrls($"http://0.0.0.0:{port}");
 
