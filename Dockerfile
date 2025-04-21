@@ -2,12 +2,13 @@
 FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
 WORKDIR /src
 
-# Copy csproj and restore
-COPY *.csproj ./
-RUN dotnet restore
+# Kopieer csproj en restore
+COPY dotNIES.API/*.csproj ./dotNIES.API/
+RUN dotnet restore ./dotNIES.API/dotNIES.API.csproj
 
-# Copy everything and build
-COPY . ./
+# Kopieer de rest van de app
+COPY dotNIES.API/. ./dotNIES.API/
+WORKDIR /src/dotNIES.API
 RUN dotnet publish -c Release -o /app/publish
 
 # ---------- RUNTIME STAGE ----------
