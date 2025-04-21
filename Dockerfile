@@ -1,20 +1,22 @@
-﻿# Gebruik de officiële .NET SDK image voor build
+﻿# ---------- BUILD STAGE ----------
 FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
+WORKDIR /src
 
-WORKDIR /app
-
-# Kopieer csproj en restore als aparte stap
-COPY *.csproj ./ 
+# Copy csproj and restore
+COPY *.csproj ./
 RUN dotnet restore
 
-# Kopieer de rest van de code en publiceer
-COPY . ./ 
-RUN dotnet publish -c Release -o /out
+# Copy everything and build
+COPY . ./
+RUN dotnet publish -c Release -o /app/publish
 
-# Gebruik een kleinere runtime image voor productie
-FROM mcr.microsoft.com/dotnet/aspnet:8.0
-
+# ---------- RUNTIME STAGE ----------
+FROM mcr.microsoft.com/dotnet/aspnet:8.0 AS final
 WORKDIR /app
-COPY --from=build /out ./ 
+
+COPY --from=build /app/publish ./
+
+ENV ASPNETCORE_URLS=http://+:8080
+EXPOSE 8080
 
 ENTRYPOINT ["dotnet", "dotNIES.API.dll"]
