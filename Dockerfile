@@ -2,7 +2,6 @@
 FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
 
 WORKDIR /app
-EXPOSE 8080  # Dit is de poort die we gebruiken als fallback
 
 # Kopieer csproj en restore als aparte stap
 COPY *.csproj ./ 
@@ -17,7 +16,5 @@ FROM mcr.microsoft.com/dotnet/aspnet:8.0
 
 WORKDIR /app
 COPY --from=build /out ./ 
-
-EXPOSE 8080  # Ook in de runtime image zodat Render dit kan gebruiken
 
 ENTRYPOINT ["dotnet", "dotNIES.API.dll"]
