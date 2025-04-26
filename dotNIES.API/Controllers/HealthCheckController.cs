@@ -7,5 +7,5 @@ namespace dotNIES.API.Controllers;
 public class HealthCheckController : ControllerBase
 {
     [HttpGet]
-    public IActionResult Get() => Ok("dotNIES API is running"); 
+    public IActionResult Get() => Ok("This is the dotNIES API. If you do not know what this is, please close the browserscreen. Thank you and goodbeye!"); 
 }
