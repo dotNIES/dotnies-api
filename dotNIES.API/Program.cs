@@ -8,6 +8,8 @@ builder.Services.AddSwaggerGen(c =>
     c.SwaggerDoc("v2", new OpenApiInfo { Title = "My API", Version = "v2" });
 });
 
+builder.Services.AddHealthChecks();
+
 // Poort ophalen en gebruiken
 var port = Environment.GetEnvironmentVariable("PORT") ?? "8080";
 builder.WebHost.UseUrls($"http://0.0.0.0:{port}");
@@ -22,6 +24,7 @@ app.UseRouting();
 
 app.UseAuthorization();
 
+app.MapHealthChecks("/");
 app.MapControllers();
 
 app.UseSwagger();
