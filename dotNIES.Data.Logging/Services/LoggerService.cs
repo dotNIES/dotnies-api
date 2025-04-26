@@ -9,6 +9,7 @@ using Serilog.Exceptions;
 using Serilog.Exceptions.Core;
 using Serilog.Exceptions.MsSqlServer.Destructurers;
 using Serilog.Sinks.SystemConsole.Themes;
+using System.Diagnostics;
 
 namespace dotNIES.Data.Logging.Services;
 
@@ -53,6 +54,9 @@ public class LoggerService : ILoggerService
     {
         WeakReferenceMessenger.Default.Register<LogMessage>(this, (r, m) =>
         {
+            Log.Information("LogMessage received");
+            Debug.WriteLine("LogMessage received");
+
             if (m == null || m.Value == null)
             {
                 Log.Error("The logmessage was null. Please do not log NULL messages!");
