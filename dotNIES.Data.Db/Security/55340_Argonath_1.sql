@@ -1,0 +1,3 @@
+﻿CREATE LOGIN [55340_Argonath]
+    WITH PASSWORD = N'eofj&gzwpwahsOxxmj7OazcpmsFT7_&#$!~<njzjrXleCcid', SID = 0xCAC58458C93B2645B04F898EF5EACFE5, DEFAULT_LANGUAGE = [us_english], CHECK_POLICY = OFF;
+

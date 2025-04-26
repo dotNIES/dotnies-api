@@ -1,0 +1,3 @@
+﻿CREATE SCHEMA [55340_Argonath]
+    AUTHORIZATION [55340_Argonath];
+
