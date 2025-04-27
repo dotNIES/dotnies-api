@@ -54,9 +54,6 @@ public class LoggerService : ILoggerService
     {
         WeakReferenceMessenger.Default.Register<LogMessage>(this, (r, m) =>
         {
-            Log.Information("LogMessage received");
-            Debug.WriteLine("LogMessage received");
-
             if (m == null || m.Value == null)
             {
                 Log.Error("The logmessage was null. Please do not log NULL messages!");
