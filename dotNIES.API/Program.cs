@@ -14,9 +14,9 @@ ConfigureMiddleware(app);
 // ?? Run app
 app.Run();
 
-// ------------------
-// Method Definitions
-// ------------------
+// --------------------
+//  Method Definitions
+// --------------------
 
 void ConfigureServices(IServiceCollection services)
 {

@@ -19,7 +19,7 @@ public class HealthCheckController : ControllerBase
     public IActionResult Get() => Ok("This is the dotNIES API. If you do not know what this is, please close the browserscreen. Thank you and goodbeye!");
 
     /// <summary>
-    /// Use this endpoint to check if the API is online.
+    /// Use this endpoint to check if the API is online (returning 1).
     /// </summary>
     /// <returns></returns>
     [HttpGet("IsOnline")]
