@@ -28,6 +28,9 @@ app.MapHealthChecks("/");
 app.MapControllers();
 
 app.UseSwagger();
-app.UseSwaggerUI();
+app.UseSwaggerUI(c =>
+{
+    c.SwaggerEndpoint("/swagger/v1/swagger.json", ".NIES API v1");
+});
 
 app.Run();
