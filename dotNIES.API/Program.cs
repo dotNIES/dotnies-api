@@ -24,7 +24,7 @@ void ConfigureServices(IServiceCollection services)
     services.AddEndpointsApiExplorer();
     services.AddSwaggerGen(c =>
     {
-        c.SwaggerDoc("v2", new OpenApiInfo { Title = "My API", Version = "v2" });
+        c.SwaggerDoc("v1", new OpenApiInfo { Title = ".NIES API", Version = "v1" });
     });
 
     services.AddHealthChecks();
@@ -42,8 +42,7 @@ void ConfigureMiddleware(WebApplication app)
     app.UseStaticFiles();
     app.UseRouting();
 
-    // https redirect eventueel uitzetten tijdens debuggen
-    // app.UseHttpsRedirection();
+    //app.UseHttpsRedirection();
 
     app.UseAuthorization();
 
