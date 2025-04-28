@@ -1,3 +1,0 @@
-﻿CREATE USER [55340_Argonath] FOR LOGIN [55340_Argonath]
-    WITH DEFAULT_SCHEMA = [55340_Argonath];
-

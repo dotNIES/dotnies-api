@@ -15,4 +15,5 @@
     [Phone]             NVARCHAR(20)    NULL,
     [Email]             NVARCHAR(100)   NULL,
     [BankAccount]       NVARCHAR(50)    NULL,
+    [Note]              NVARCHAR(500)   NULL,
 )

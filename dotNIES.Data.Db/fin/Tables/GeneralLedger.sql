@@ -1,16 +1,17 @@
 ﻿CREATE TABLE [fin].[GeneralLedger] (
-	[Id]                INT                 IDENTITY (1, 1) NOT NULL  PRIMARY KEY,
-    [CreatedOn]         DATETIME2 (7)       DEFAULT (GETUTCDATE()) NOT NULL,
-    [CreatedBy]         INT                 DEFAULT (USER_NAME()) NOT NULL,
-    [LastModifiedOn]    DATETIME2 (7)       DEFAULT (GETUTCDATE()) NOT NULL,
-    [LastModifiedBy]    INT                 DEFAULT (USER_NAME())NOT NULL,
-    [PurchaseTypeId]    INT                 NOT NULL,
-    [CategoryId]        INT                 NOT NULL,
-    [EntryDate]         DATETIME2 (7)       DEFAULT (GETUTCDATE()) NOT NULL,
+    [Id]                INT                 IDENTITY (1, 1) NOT NULL,
+    [CreatedOn]         DATETIME2 (7)       NOT NULL,
+    [CreatedBy]         INT                 NOT NULL,
+    [LastModifiedOn]    DATETIME2 (7)       NOT NULL,
+    [LastModifiedBy]    INT                 NOT NULL,
+    [VendorId]          INT                 NOT NULL,
+    [PaymentTypeId]     INT                 NOT NULL,
+    [EntryDate]         DATETIME2 (7)       NOT NULL,
     [Amount]            DECIMAL (18, 4)     NOT NULL,
-    [Debit]             BIT                 DEFAULT ((0)) NOT NULL,
+    [DiscountAmt]       DECIMAL (18, 4)     NOT NULL,
+    [Debit]             BIT                 NOT NULL,
     [Description]       VARCHAR (100)       NULL,
-    CONSTRAINT [FK_GeneralLedger_PurchaseType] FOREIGN KEY ([PurchaseTypeId]) REFERENCES [fin].[PurchaseType]([Id]),
-    CONSTRAINT [FK_GeneralLedger_Category] FOREIGN KEY ([CategoryId]) REFERENCES [common].[Category]([Id])
+    PRIMARY KEY CLUSTERED ([Id] ASC), 
+    CONSTRAINT [FK_GeneralLedger_Vendor] FOREIGN KEY ([VendorId]) REFERENCES [fin].[Vendor]([Id]),
+    CONSTRAINT [FK_GeneralLedger_PaymentType] FOREIGN KEY ([PaymentTypeId]) REFERENCES [fin].[PaymentType]([Id])
 );
-

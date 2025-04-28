@@ -1,3 +1,2 @@
 ﻿CREATE SCHEMA [fin]
-    AUTHORIZATION [55340_Argonath];
 

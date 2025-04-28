@@ -69,9 +69,6 @@
     <Folder Include="common\Tables" />
   </ItemGroup>
   <ItemGroup>
-    <Build Include="fin\Tables\GeneralLedger.sql">
-      <AnsiNulls>Off</AnsiNulls>
-    </Build>
     <Build Include="dbo\Tables\AspNetRoleClaims.sql" />
     <Build Include="dbo\Tables\AspNetRoles.sql" />
     <Build Include="dbo\Tables\AspNetUserClaims.sql" />
@@ -80,15 +77,14 @@
     <Build Include="dbo\Tables\AspNetUsers.sql" />
     <Build Include="dbo\Tables\AspNetUserTokens.sql" />
     <Build Include="dbo\Tables\Logs.sql" />
-    <Build Include="Security\55340_Argonath.sql" />
-    <Build Include="Security\55340_Argonath_1.sql" />
-    <Build Include="Security\RoleMemberships.sql" />
-    <Build Include="Security\55340_Argonath_2.sql" />
     <Build Include="Security\fin.sql" />
     <Build Include="Security\common.sql" />
     <Build Include="fin\Tables\PurchaseType.sql" />
     <Build Include="common\Tables\Category.sql" />
     <Build Include="fin\Tables\Vendor.sql" />
+    <Build Include="fin\Tables\GeneralLedger.sql" />
+    <Build Include="fin\Tables\GeneralLedgerDetail.sql" />
+    <Build Include="fin\Tables\PaymentType.sql" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Publish\dotNIES.Data.Db.publish.xml" />
