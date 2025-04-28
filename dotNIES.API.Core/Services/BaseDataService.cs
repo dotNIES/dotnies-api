@@ -18,6 +18,7 @@ using System.Threading.Tasks;
 namespace dotNIES.API.Core.Services;
 public class BaseDataService
 {
+    // NOG DE 2 objecten opnieuw zoeken in devops
     private readonly IAppInfoDto _appInfoDto;
     private readonly IUserAppInfoDto _userAppInfoDto;
     private readonly ILoggerService _loggerService;

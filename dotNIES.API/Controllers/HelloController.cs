@@ -26,6 +26,6 @@ public class HelloController : ControllerBase
             LogLevel = LogLevel.Information
         };
         WeakReferenceMessenger.Default.Send(new LogMessage(logMessage));
-        return Ok("Hello from dotNIES API");
+        return Ok("Hello from dotNIES API :-)");
     }
 }
