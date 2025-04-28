@@ -4,6 +4,9 @@
     <TargetFramework>net9.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
+    <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
+    <Description>Logging made possible with weakreferences</Description>
+    <Title>dotNIES.Data.Logging.</Title>
   </PropertyGroup>
 
   <ItemGroup>
