@@ -1,7 +1,7 @@
 ﻿
-namespace dotNIES.Data.Logging.Models;
+namespace dotNIES.Data.Dto.Internal;
 
-public interface IUserLoggerInfoModel
+public interface IUserAppInfoDto
 {
     Guid AppSessionId { get; set; }
     bool IsDevelopment { get; set; }

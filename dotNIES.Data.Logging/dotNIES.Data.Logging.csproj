@@ -26,4 +26,8 @@
     <PackageReference Include="Serilog.Sinks.MSSqlServer" />
   </ItemGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\dotNIES.Data.Dto\dotNIES.Data.Dto.csproj" />
+  </ItemGroup>
+
 </Project>

@@ -1,4 +1,5 @@
-﻿using dotNIES.Data.Logging.Models;
+﻿using dotNIES.Data.Dto.Internal;
+using dotNIES.Data.Logging.Models;
 using Serilog.Core;
 using Serilog.Events;
 using System;
@@ -11,9 +12,9 @@ using System.Threading.Tasks;
 namespace dotNIES.Data.Logging.Helpers;
 public class ClassNameMethodNameEnricher : ILogEventEnricher
 {
-    private readonly IUserLoggerInfoModel _userLoggerInfoModel;
+    private readonly IUserAppInfoDto _userLoggerInfoModel;
 
-    public ClassNameMethodNameEnricher(IUserLoggerInfoModel userLoggerInfoModel)
+    public ClassNameMethodNameEnricher(IUserAppInfoDto userLoggerInfoModel)
     {
         _userLoggerInfoModel = userLoggerInfoModel;
     }

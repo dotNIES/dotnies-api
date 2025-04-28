@@ -1,4 +1,5 @@
 ﻿using CommunityToolkit.Mvvm.Messaging;
+using dotNIES.Data.Dto.Internal;
 using dotNIES.Data.Logging.Helpers;
 using dotNIES.Data.Logging.Messages;
 using dotNIES.Data.Logging.Models;
@@ -20,9 +21,9 @@ namespace dotNIES.Data.Logging.Services;
 /// </summary>
 public class LoggerService : ILoggerService
 {
-    private readonly IUserLoggerInfoModel _userLoggerInfoModel;
+    private readonly IUserAppInfoDto _userLoggerInfoModel;
 
-    public LoggerService(IUserLoggerInfoModel userLoggerInfoModel)
+    public LoggerService(IUserAppInfoDto userLoggerInfoModel)
     {
         _userLoggerInfoModel = userLoggerInfoModel;
 

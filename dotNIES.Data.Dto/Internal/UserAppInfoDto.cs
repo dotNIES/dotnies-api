@@ -4,8 +4,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace dotNIES.Data.Logging.Models;
-public class UserLoggerInfoModel : IUserLoggerInfoModel
+namespace dotNIES.Data.Dto.Internal;
+
+public class UserAppInfoDto : IUserAppInfoDto
 {
     /// <summary>
     /// Unique session ID for the user.
