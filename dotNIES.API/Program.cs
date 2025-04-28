@@ -47,8 +47,13 @@ void ConfigureMiddleware(WebApplication app)
     app.UseAuthorization();
 
     app.MapHealthChecks("/");
-    app.MapControllers();
-
     app.UseSwagger();
     app.UseSwaggerUI();
+
+    app.MapAreaControllerRoute(
+        name: "areas",
+        areaName: null,
+        pattern: "{area:exists}/{controller}/{action=Index}/{id?}");
+
+    app.MapControllers();
 }
