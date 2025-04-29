@@ -1,5 +1,4 @@
 using dotNIES.Data.Dto.Internal;
-using dotNIES.Data.Logging.Models;
 using dotNIES.Data.Logging.Services;
 using Microsoft.OpenApi.Models;
 
