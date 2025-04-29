@@ -17,7 +17,7 @@ using System.Text;
 using System.Threading.Tasks;
 
 namespace dotNIES.API.Core.Services;
-public class BaseDataService
+public class BaseDataService : IBaseDataService
 {
     // NOG DE 2 objecten opnieuw zoeken in devops
     private readonly IAppInfoDto _appInfoDto;
@@ -107,7 +107,7 @@ public class BaseDataService
             LogLevel = LogLevel.Information,
         };
         WeakReferenceMessenger.Default.Send(logMessage);
-        
+
         return result;
     }
 
@@ -192,7 +192,7 @@ public class BaseDataService
                 };
                 WeakReferenceMessenger.Default.Send(logMessage);
             }
-            
+
             if (!result)
             {
                 // Log the insert as NOT successful (if exception occurs then it will be caught in the catch block in the caller)
@@ -216,7 +216,7 @@ public class BaseDataService
                         LogLevel = LogLevel.Information,
                     };
                     WeakReferenceMessenger.Default.Send(logMessage);
-                    
+
                     return id;
                 }
                 else
@@ -424,32 +424,48 @@ public class BaseDataService
 
         // ACTUAL DATABASE CALL
         using IDbConnection connection = new SqlConnection(_connectionString);
-        var result = await connection.DeleteAsync(model);
 
-        if (!result)
+        try
         {
-            logMessage = new LogMessageModel
+            var result = await connection.DeleteAsync(model);
+
+            if (!result)
             {
-                Message = $"The record {model?.GetType()} is NOT deleted!",
-                LogLevel = LogLevel.Error,
-            };
-            WeakReferenceMessenger.Default.Send(logMessage);
+                logMessage = new LogMessageModel
+                {
+                    Message = $"The record {model?.GetType()} is NOT deleted!",
+                    LogLevel = LogLevel.Error,
+                };
+                WeakReferenceMessenger.Default.Send(logMessage);
+            }
+            else
+            {
+                logMessage = new LogMessageModel
+                {
+                    Message = $"The record {model?.GetType()} was successfully deleted",
+                    LogLevel = LogLevel.Information,
+                };
+                WeakReferenceMessenger.Default.Send(logMessage);
+            }
+
+            return result;
         }
-        else
+        catch (SqlException sqlE) when (sqlE.Message.Contains("REFERENCE constraint"))
         {
             logMessage = new LogMessageModel
             {
-                Message = $"The record {model?.GetType()} was successfully deleted",
+                Message = $"The record {model?.GetType()} has references to other records and cannot be deleted. A softdelete was issued instead.",
                 LogLevel = LogLevel.Information,
             };
             WeakReferenceMessenger.Default.Send(logMessage);
-        }
 
-        return result;
+            var result = await SoftDeleteRecordAsync(model);
+            return result;
+        }
     }
 
     /// <summary>
-    /// Updates the record setting the 'IsActive' flag to false. the record is not deleted from the database.
+    /// Updates the record setting the 'IsActive' and/or 'IsDeleted' flag. the record is not deleted from the database.
     /// </summary>
     /// <typeparam name="T"></typeparam>
     /// <param name="model"></param>
@@ -457,8 +473,12 @@ public class BaseDataService
     /// <exception cref="ArgumentNullException"></exception>
     public async Task<bool> SoftDeleteRecordAsync<T>(T model) where T : class
     {
+        // TODO: this uses reflection for checking delete / isactive property
+        //       this is not the best way to do this, but it works for now.
+
         LogMessageModel logMessage;
-        bool propertyChanged = true;
+        bool propertyIsActiveChanged = false;
+        bool propertyIsDeletedChanged = false;
 
         if (model == null)
         {
@@ -491,30 +511,52 @@ public class BaseDataService
 
         // check if there is a field IsActive and if so, change it to false
         var isActiveProperty = typeof(T).GetProperty("IsActive");
+        var isDeleteProperty = typeof(T).GetProperty("IsDeleted");
 
         if (isActiveProperty != null && isActiveProperty.PropertyType == typeof(bool) && isActiveProperty.CanWrite)
         {
             isActiveProperty.SetValue(model, false);
+            propertyIsActiveChanged = true;
         }
         else
         {
-            isActiveProperty = typeof(T).GetProperty("IsDeleted");
-
-            if (isActiveProperty != null && isActiveProperty.PropertyType == typeof(bool) && isActiveProperty.CanWrite)
-            {
-                isActiveProperty.SetValue(model, true);
-            }
+            propertyIsActiveChanged = false;
         }
+
+        isDeleteProperty = typeof(T).GetProperty("IsDeleted");
+
+        if (isDeleteProperty != null && isDeleteProperty.PropertyType == typeof(bool) && isDeleteProperty.CanWrite)
+        {
+            isDeleteProperty.SetValue(model, true);
+            propertyIsDeletedChanged = true;
+        }
+        else
+        {
+            propertyIsDeletedChanged = false;
+        }
+
+        if (!propertyIsActiveChanged || !propertyIsDeletedChanged)
+        {
+            logMessage = new LogMessageModel
+            {
+                Message = $"The record {model?.GetType()} cannot be soft-deleted because neither IsActive nor IsDeleted exists in the table",
+                LogLevel = LogLevel.Error,
+            };
+            WeakReferenceMessenger.Default.Send(logMessage);
+
+            return false;
+        }
+
 
         // ACTUAL DATABASE CALL
         using IDbConnection connection = new SqlConnection(_connectionString);
-        var result = await connection.DeleteAsync(model);
+        var result = await connection.UpdateAsync(model);
 
         if (!result)
         {
             logMessage = new LogMessageModel
             {
-                Message = $"The record {model?.GetType()} is NOT deleted!",
+                Message = $"The record {model?.GetType()} is NOT updated for softdelete!",
                 LogLevel = LogLevel.Error,
             };
             WeakReferenceMessenger.Default.Send(logMessage);
@@ -523,7 +565,7 @@ public class BaseDataService
         {
             logMessage = new LogMessageModel
             {
-                Message = $"The record {model?.GetType()} was successfully deleted",
+                Message = $"The record {model?.GetType()} was successfully soft deleted",
                 LogLevel = LogLevel.Information,
             };
             WeakReferenceMessenger.Default.Send(logMessage);
