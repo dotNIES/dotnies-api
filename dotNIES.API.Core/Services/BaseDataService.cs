@@ -29,16 +29,6 @@ public class BaseDataService : IBaseDataService
         CheckConnectionString();
     }
 
-    /// <summary>
-    /// Return all records in a table.
-    /// </summary>
-    /// <remarks>
-    /// be careful with large tables.
-    /// </remarks>
-    /// <typeparam name="T"></typeparam>
-    /// <param name="tableName"></param>
-    /// <returns></returns>
-    /// <exception cref="ArgumentException"></exception>
     public async Task<IEnumerable<T>> GetAllAsync<T>(string tableName)
     {
         LogMessageModel logMessage;
@@ -65,12 +55,6 @@ public class BaseDataService : IBaseDataService
         return result;
     }
 
-    /// <summary>
-    /// Returns the output of a SQL statement as a list of objects of type T.
-    /// </summary>
-    /// <typeparam name="T"></typeparam>
-    /// <param name="sqlStatement"></param>
-    /// <returns></returns>
     public async Task<IEnumerable<T>> GetDataAsync<T>(string sqlStatement)
     {
         LogMessageModel logMessage;
@@ -105,14 +89,6 @@ public class BaseDataService : IBaseDataService
         return result;
     }
 
-    /// <summary>
-    /// Returns the output of a SQL statement as a single object of type T.
-    /// </summary>
-    /// <remarks>
-    /// If multiple rows are returned, only the first row will be returned.
-    /// </remarks>
-    /// <param name="sqlStatement"></param>
-    /// <returns></returns>
     public async Task<T?> GetRecordAsync<T>(string sqlStatement)
     {
         LogMessageModel logMessage;
@@ -136,16 +112,6 @@ public class BaseDataService : IBaseDataService
         return result;
     }
 
-    /// <summary>
-    /// Inserts a new record into the database.
-    /// </summary>
-    /// <remarks>The Id must be of type INT</remarks>
-    /// <typeparam name="T"></typeparam>
-    /// <param name="model"></param>
-    /// <returns></returns>
-    /// <exception cref="ArgumentNullException"></exception>
-    /// <exception cref="ArgumentException"></exception>
-    /// <exception cref="InvalidOperationException"></exception>
     public async Task<int> InsertAsync<T>(T model) where T : class
     {
         LogMessageModel logMessage;
@@ -226,16 +192,6 @@ public class BaseDataService : IBaseDataService
         }
     }
 
-    /// <summary>
-    /// Inserts a new record into the database.
-    /// </summary>
-    /// <remarks>The Id must be of type GUID</remarks>
-    /// <typeparam name="T"></typeparam>
-    /// <param name="model"></param>
-    /// <returns></returns>
-    /// <exception cref="ArgumentNullException"></exception>
-    /// <exception cref="ArgumentException"></exception>
-    /// <exception cref="InvalidOperationException"></exception>
     public async Task<Guid> InsertAsync<T>(T model, bool userGuidAsId) where T : class
     {
         LogMessageModel logMessage;
@@ -329,13 +285,6 @@ public class BaseDataService : IBaseDataService
         }
     }
 
-    /// <summary>
-    /// Updates an existing record in the database.
-    /// </summary>
-    /// <typeparam name="T"></typeparam>
-    /// <param name="model"></param>
-    /// <returns></returns>
-    /// <exception cref="ArgumentNullException"></exception>
     public async Task<bool> UpdateRecordAsync<T>(T model) where T : class
     {
         LogMessageModel logMessage;
@@ -376,13 +325,6 @@ public class BaseDataService : IBaseDataService
         return result;
     }
 
-    /// <summary>
-    /// Fysically deletes a record from the database.
-    /// </summary>
-    /// <typeparam name="T"></typeparam>
-    /// <param name="model"></param>
-    /// <returns></returns>
-    /// <exception cref="ArgumentNullException"></exception>
     public async Task<bool> DeleteRecordAsync<T>(T model) where T : class
     {
         LogMessageModel logMessage;
@@ -458,13 +400,6 @@ public class BaseDataService : IBaseDataService
         }
     }
 
-    /// <summary>
-    /// Updates the record setting the 'IsActive' and/or 'IsDeleted' flag. the record is not deleted from the database.
-    /// </summary>
-    /// <typeparam name="T"></typeparam>
-    /// <param name="model"></param>
-    /// <returns></returns>
-    /// <exception cref="ArgumentNullException"></exception>
     public async Task<bool> SoftDeleteRecordAsync<T>(T model) where T : class
     {
         // TODO: this uses reflection for checking delete / isactive property
