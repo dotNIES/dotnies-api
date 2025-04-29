@@ -5,13 +5,16 @@ using dotNIES.Data.Dto.Common;
 using dotNIES.Data.Dto.Internal;
 using dotNIES.Data.Logging.Models;
 using dotNIES.Data.Logging.Services;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace dotNIES.API.Areas.common.Controllers;
+
 [Area("common")]
 [Route("api/[area]/[controller]")]
 [ApiController]
-public class CategoryController : BaseController, ICategoryController
+[Authorize]
+public class CategoryController : BaseController
 {
     private readonly ILoggerService _loggerService;
     private readonly IAppInfoDto _appInfoDto;
@@ -29,14 +32,14 @@ public class CategoryController : BaseController, ICategoryController
         _baseDataService = baseDataService;
     }
 
-    [HttpGet]
+    [HttpGet("GetAll")]
     public async Task<ActionResult<IEnumerable<CategoryDto>>> GetAll()
     {
         try
         {
             var result = await _baseDataService.GetAllAsync<CategoryDto>("Category");
 
-            if (_userAppInfoDto.MinimumLogLevel == LogLevel.Debug || _userAppInfoDto.MinimumLogLevel == LogLevel.Trace)
+            if (_userAppInfoDto.MinimumLogLevel is LogLevel.Debug or LogLevel.Trace)
             {
                 var logMessage = new LogMessageModel
                 {
@@ -60,7 +63,7 @@ public class CategoryController : BaseController, ICategoryController
         }
     }
 
-    [HttpGet]
+    [HttpGet("GetActiveCategories")]
     public async Task<ActionResult<IEnumerable<CategoryDto>>> GetActiveCategories()
     {
         try

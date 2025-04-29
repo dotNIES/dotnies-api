@@ -49,9 +49,6 @@ void RegisterDI(IServiceCollection services)
     // dotNIES.API.Core services
     services.AddSingleton<IBaseDataService, BaseDataService>();
     services.AddScoped<ICategoryService, CategoryService>();
-
-    // dotNIES.API.Controllers
-    services.AddScoped<ICategoryController, CategoryController>();
 }
 
 void InitializeBaseObjects(IServiceProvider serviceProvider)
@@ -181,17 +178,21 @@ void ConfigureMiddleware(WebApplication app)
     app.UseStaticFiles();
     app.UseRouting();
 
-    app.UseHttpsRedirection();
+    //app.UseHttpsRedirection();
 
+    app.UseAuthentication();
     app.UseAuthorization();
 
     app.MapHealthChecks("/");
     app.UseSwagger();
-    app.UseSwaggerUI();
+    app.UseSwaggerUI(c =>
+    {
+        c.SwaggerEndpoint("/swagger/v1/swagger.json", ".Nies API v1");
+    });
 
     app.MapAreaControllerRoute(
         name: "areas",
-        areaName: null,
+        areaName: "common",
         pattern: "{area:exists}/{controller}/{action=Index}/{id?}");
 
     app.MapControllers();
