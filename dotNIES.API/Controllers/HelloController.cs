@@ -17,6 +17,10 @@ public class HelloController : ControllerBase
         _loggerService = loggerService;
     }
 
+    /// <summary>
+    /// Say hello to the world
+    /// </summary>
+    /// <returns></returns>
     [HttpGet]
     public IActionResult Get()
     {
