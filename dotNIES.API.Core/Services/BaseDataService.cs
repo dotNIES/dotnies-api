@@ -4,6 +4,7 @@ using Dapper.Database;
 using Dapper.Database.Extensions;
 using dotNIES.API.Core.Helpers;
 using dotNIES.Data.Dto.Internal;
+using dotNIES.Data.Logging.Messages;
 using dotNIES.Data.Logging.Models;
 using dotNIES.Data.Logging.Services;
 using Microsoft.Data.SqlClient;
@@ -34,11 +35,34 @@ public class BaseDataService
         CheckConnectionString();
     }
 
-    public async Task<IEnumerable<T>> GetAll<T>(string tableName)
+    /// <summary>
+    /// Return all records in a table.
+    /// </summary>
+    /// <remarks>
+    /// be careful with large tables.
+    /// </remarks>
+    /// <typeparam name="T"></typeparam>
+    /// <param name="tableName"></param>
+    /// <returns></returns>
+    /// <exception cref="ArgumentException"></exception>
+    public async Task<IEnumerable<T>> GetAllAsync<T>(string tableName)
     {
+        LogMessageModel logMessage;
+
         if (string.IsNullOrWhiteSpace(tableName))
         {
             throw new ArgumentException("The tablename cannot be null or empty.", nameof(tableName));
+        }
+
+        // Log the SQL statement if logging is enabled
+        if (_userAppInfoDto.LogSqlStatements)
+        {
+            logMessage = new LogMessageModel
+            {
+                Message = $"Executing base SQL Statement GetAll for table: {tableName}",
+                LogLevel = LogLevel.Information,
+            };
+            WeakReferenceMessenger.Default.Send(logMessage);
         }
 
         using IDbConnection connection = new SqlConnection(_appInfoDto.ConnectionString);
@@ -86,7 +110,6 @@ public class BaseDataService
         
         return result;
     }
-
 
     /// <summary>
     /// Returns the output of a SQL statement as a single object of type T.
@@ -310,6 +333,203 @@ public class BaseDataService
         {
             throw new InvalidOperationException("The model doen't have a GUID primary key, the method expects a primary key with name Id and type Guid");
         }
+    }
+
+    /// <summary>
+    /// Updates an existing record in the database.
+    /// </summary>
+    /// <typeparam name="T"></typeparam>
+    /// <param name="model"></param>
+    /// <returns></returns>
+    /// <exception cref="ArgumentNullException"></exception>
+    public async Task<bool> UpdateRecordAsync<T>(T model) where T : class
+    {
+        LogMessageModel logMessage;
+
+        if (model == null)
+        {
+            throw new ArgumentNullException(nameof(model), "The model cannot be null.");
+        }
+
+        // Log the SQL statement if logging is enabled
+        if (_userAppInfoDto.LogSqlStatements)
+        {
+            logMessage = new LogMessageModel
+            {
+                Message = $"Executing update statement for {model?.GetType()}",
+                LogLevel = LogLevel.Information,
+            };
+            WeakReferenceMessenger.Default.Send(logMessage);
+        }
+
+
+        // ACTUAL DATABASE CALL
+        using IDbConnection connection = new SqlConnection(_connectionString);
+        var result = await connection.UpdateAsync<T>(model);
+
+        if (_userAppInfoDto.LogEntireRecord)
+        {
+            // Log the entire record as JSON String
+            var recordAsJson = System.Text.Json.JsonSerializer.Serialize(model);
+            logMessage = new LogMessageModel
+            {
+                Message = $"Record: {recordAsJson}",
+                LogLevel = LogLevel.Information,
+            };
+            WeakReferenceMessenger.Default.Send(logMessage);
+        }
+
+        return result;
+    }
+
+    /// <summary>
+    /// Fysically deletes a record from the database.
+    /// </summary>
+    /// <typeparam name="T"></typeparam>
+    /// <param name="model"></param>
+    /// <returns></returns>
+    /// <exception cref="ArgumentNullException"></exception>
+    public async Task<bool> DeleteRecordAsync<T>(T model) where T : class
+    {
+        LogMessageModel logMessage;
+
+        if (model == null)
+        {
+            throw new ArgumentNullException(nameof(model), "The model cannot be null.");
+        }
+
+        // Log the SQL statement if logging is enabled
+        if (_userAppInfoDto.LogSqlStatements)
+        {
+            logMessage = new LogMessageModel
+            {
+                Message = $"Executing delete statement for {model?.GetType()}",
+                LogLevel = LogLevel.Information,
+            };
+            WeakReferenceMessenger.Default.Send(logMessage);
+        }
+
+        if (_userAppInfoDto.LogEntireRecord)
+        {
+            // Log the entire record as JSON String
+            var recordAsJson = System.Text.Json.JsonSerializer.Serialize(model);
+            logMessage = new LogMessageModel
+            {
+                Message = $"Record: {recordAsJson}",
+                LogLevel = LogLevel.Information,
+            };
+            WeakReferenceMessenger.Default.Send(logMessage);
+        }
+
+
+        // ACTUAL DATABASE CALL
+        using IDbConnection connection = new SqlConnection(_connectionString);
+        var result = await connection.DeleteAsync(model);
+
+        if (!result)
+        {
+            logMessage = new LogMessageModel
+            {
+                Message = $"The record {model?.GetType()} is NOT deleted!",
+                LogLevel = LogLevel.Error,
+            };
+            WeakReferenceMessenger.Default.Send(logMessage);
+        }
+        else
+        {
+            logMessage = new LogMessageModel
+            {
+                Message = $"The record {model?.GetType()} was successfully deleted",
+                LogLevel = LogLevel.Information,
+            };
+            WeakReferenceMessenger.Default.Send(logMessage);
+        }
+
+        return result;
+    }
+
+    /// <summary>
+    /// Updates the record setting the 'IsActive' flag to false. the record is not deleted from the database.
+    /// </summary>
+    /// <typeparam name="T"></typeparam>
+    /// <param name="model"></param>
+    /// <returns></returns>
+    /// <exception cref="ArgumentNullException"></exception>
+    public async Task<bool> SoftDeleteRecordAsync<T>(T model) where T : class
+    {
+        LogMessageModel logMessage;
+        bool propertyChanged = true;
+
+        if (model == null)
+        {
+            throw new ArgumentNullException(nameof(model), "The model cannot be null.");
+        }
+
+        // Log the SQL statement if logging is enabled
+        if (_userAppInfoDto.LogSqlStatements)
+        {
+            logMessage = new LogMessageModel
+            {
+                Message = $"Executing delete statement for {model?.GetType()}",
+                LogLevel = LogLevel.Information,
+            };
+            WeakReferenceMessenger.Default.Send(logMessage);
+        }
+
+        if (_userAppInfoDto.LogEntireRecord)
+        {
+            // Log the entire record as JSON String
+            var recordAsJson = System.Text.Json.JsonSerializer.Serialize(model);
+            logMessage = new LogMessageModel
+            {
+                Message = $"Record: {recordAsJson}",
+                LogLevel = LogLevel.Information,
+            };
+            WeakReferenceMessenger.Default.Send(logMessage);
+        }
+
+
+        // check if there is a field IsActive and if so, change it to false
+        var isActiveProperty = typeof(T).GetProperty("IsActive");
+
+        if (isActiveProperty != null && isActiveProperty.PropertyType == typeof(bool) && isActiveProperty.CanWrite)
+        {
+            isActiveProperty.SetValue(model, false);
+        }
+        else
+        {
+            isActiveProperty = typeof(T).GetProperty("IsDeleted");
+
+            if (isActiveProperty != null && isActiveProperty.PropertyType == typeof(bool) && isActiveProperty.CanWrite)
+            {
+                isActiveProperty.SetValue(model, true);
+            }
+        }
+
+        // ACTUAL DATABASE CALL
+        using IDbConnection connection = new SqlConnection(_connectionString);
+        var result = await connection.DeleteAsync(model);
+
+        if (!result)
+        {
+            logMessage = new LogMessageModel
+            {
+                Message = $"The record {model?.GetType()} is NOT deleted!",
+                LogLevel = LogLevel.Error,
+            };
+            WeakReferenceMessenger.Default.Send(logMessage);
+        }
+        else
+        {
+            logMessage = new LogMessageModel
+            {
+                Message = $"The record {model?.GetType()} was successfully deleted",
+                LogLevel = LogLevel.Information,
+            };
+            WeakReferenceMessenger.Default.Send(logMessage);
+        }
+
+        return result;
     }
 
     /// <summary>
