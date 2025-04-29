@@ -18,5 +18,10 @@
 
   <ItemGroup>
     <ProjectReference Include="..\..\dotNIES.Data\dotNIES.Data.Dto\dotNIES.Data.Dto.csproj" />
+    <ProjectReference Include="..\dotNIES.API.Core\dotNIES.API.Core.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="Areas\common\Models\" />
   </ItemGroup>
 </Project>
