@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Microsoft.Extensions.Logging;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -42,4 +43,6 @@ public class UserAppInfoDto : IUserAppInfoDto
     /// If true, the entire record will be logged as a JSON object.
     /// </summary>
     public bool LogEntireRecord { get; set; } = false;
+
+    public LogLevel MinimumLogLevel { get; set; } = LogLevel.Debug;
 }

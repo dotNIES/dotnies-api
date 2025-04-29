@@ -1,10 +1,10 @@
 ﻿CREATE TABLE [fin].[GeneralLedgerDetail]
 (
 	[Id]                INT                 IDENTITY (1, 1) NOT NULL,
-    [CreatedOn]         DATETIME2 (7)       NOT NULL,
-    [CreatedBy]         INT                 NOT NULL,
-    [LastModifiedOn]    DATETIME2 (7)       NOT NULL,
-    [LastModifiedBy]    INT                 NOT NULL,
+    [CreatedOn]         DATETIME2 (7)       DEFAULT (GETUTCDATE()) NOT NULL,
+    [CreatedBy]         NVARCHAR(128)       DEFAULT (USER_NAME()) NOT NULL,
+    [LastModifiedOn]    DATETIME2 (7)       DEFAULT (GETUTCDATE()) NOT NULL,
+    [LastModifiedBy]    NVARCHAR(128)       DEFAULT (USER_NAME())NOT NULL,
     [PurchaseTypeId]    INT                 NOT NULL,
     [CategoryId]        INT                 NOT NULL,
     [EntryDate]         DATETIME2 (7)       NOT NULL,
