@@ -1,22 +1,16 @@
 ﻿using CommunityToolkit.Mvvm.Messaging;
 using Dapper;
-using Dapper.Database;
 using Dapper.Database.Extensions;
 using dotNIES.API.Core.Helpers;
 using dotNIES.Data.Dto.Internal;
-using dotNIES.Data.Logging.Messages;
 using dotNIES.Data.Logging.Models;
 using dotNIES.Data.Logging.Services;
 using Microsoft.Data.SqlClient;
 using Microsoft.Extensions.Logging;
-using System;
-using System.Collections.Generic;
 using System.Data;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace dotNIES.API.Core.Services;
+
 public class BaseDataService : IBaseDataService
 {
     // NOG DE 2 objecten opnieuw zoeken in devops
