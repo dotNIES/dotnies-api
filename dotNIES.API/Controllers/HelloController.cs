@@ -17,6 +17,10 @@ public class HelloController : ControllerBase
         _loggerService = loggerService;
     }
 
+    /// <summary>
+    /// Say hello to the world
+    /// </summary>
+    /// <returns></returns>
     [HttpGet]
     public IActionResult Get()
     {
@@ -26,6 +30,6 @@ public class HelloController : ControllerBase
             LogLevel = LogLevel.Information
         };
         WeakReferenceMessenger.Default.Send(new LogMessage(logMessage));
-        return Ok("Hello from dotNIES API");
+        return Ok("Hello from dotNIES API :-)");
     }
 }
