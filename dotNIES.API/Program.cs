@@ -1,3 +1,4 @@
+using dotNIES.Data.Dto.Internal;
 using dotNIES.Data.Logging.Models;
 using dotNIES.Data.Logging.Services;
 using Microsoft.OpenApi.Models;
@@ -29,7 +30,7 @@ void ConfigureServices(IServiceCollection services)
 
     services.AddHealthChecks();
 
-    services.AddSingleton<IUserLoggerInfoModel, UserLoggerInfoModel>();
+    services.AddSingleton<IUserAppInfoDto, UserAppInfoDto>();
     services.AddSingleton<ILoggerService, LoggerService>();
 }
 
