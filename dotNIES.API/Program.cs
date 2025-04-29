@@ -1,4 +1,5 @@
 using CommunityToolkit.Mvvm.Messaging;
+using dotNIES.API.Core.Services;
 using dotNIES.Data.Dto.Internal;
 using dotNIES.Data.Logging.Messages;
 using dotNIES.Data.Logging.Models;
@@ -36,13 +37,17 @@ void RegisterDI(IServiceCollection services)
                             .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true)
                             .Build();
 
-    // specials
+    // Internal things
     services.AddSingleton(config);
     services.AddSingleton<IUserAppInfoDto, UserAppInfoDto>();
     services.AddSingleton<IAppInfoDto, AppInfoDto>();
 
-    // Services
+    // dotNIES.Data.Logging Services
     services.AddSingleton<ILoggerService, LoggerService>();
+
+    // dotNIES.API.Core services
+    services.AddSingleton<IBaseDataService, BaseDataService>();
+    services.AddSingleton<ICategoryService, CategoryService>();
 }
 
 void InitializeBaseObjects(IServiceProvider serviceProvider)
@@ -128,14 +133,17 @@ void InitializeBaseObjects(IServiceProvider serviceProvider)
         appInfoDto.LogSqlStatements = config.GetSection("LogSqlStatements").Value == "true";
     }
 
+    // fill in the rest of the application parameters
     appInfoDto.AppSessionId = Guid.NewGuid();
     appInfoDto.UserLoggerInfoId = Guid.NewGuid();
     appInfoDto.UserName = Environment.UserName;
     appInfoDto.WindowsUserName = Environment.UserName;
 
+    // fill in the user application parameters
     userAppInfoDto.AppName = "dotNIES API";
     userAppInfoDto.AppVersion = "1.0.0";
 
+    // Get the connectionstring
     if (appInfoDto.IsDevelopment)
     {
         userAppInfoDto.ConnectionString = config.GetConnectionString("TestConnectionString") ?? string.Empty;
