@@ -1,4 +1,7 @@
 using CommunityToolkit.Mvvm.Messaging;
+using dotNIES.API.Core.Repositories;
+using dotNIES.API.Core.Repositories.Common;
+using dotNIES.API.Core.Repositories.Finance;
 using dotNIES.API.Core.Repositories.Internal;
 using dotNIES.Data.Dto.Internal;
 using dotNIES.Data.Logging.Messages;
@@ -91,8 +94,14 @@ void RegisterDI(IServiceCollection services)
     // dotNIES.Data.Logging Services
     services.AddSingleton<ILoggerService, LoggerService>();
 
-    // dotNIES.API.Core services
+    // dotNIES.API.Core repositories
     services.AddSingleton<IBaseRepository, BaseRepository>();
+    services.AddScoped<ICategoryRepository, CategoryRepository>();
+    services.AddScoped<IGeneralLedgerDetailRepository, GeneralLedgerDetailRepository>();
+    services.AddScoped<IGeneralLedgerRepository, GeneralLedgerRepository>();
+    services.AddScoped<IPaymentTypeRepository, PaymentTypeRepository>();
+    services.AddScoped<IPurchaseTypeRepository, PurchaseTypeRepository>();
+    services.AddScoped<IVendorRepository, VendorRepository>();
 }
 
 void InitializeBaseObjects(IServiceProvider serviceProvider)

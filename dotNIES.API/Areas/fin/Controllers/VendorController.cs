@@ -52,11 +52,11 @@ public class VendorController : BaseController
     }
 
     [HttpGet("GetActiveVendors")]
-    public async Task<ActionResult<IEnumerable<CategoryDto>>> GetActiveVendors()
+    public async Task<ActionResult<IEnumerable<VendorDto>>> GetActiveVendors()
     {
         try
         {
-            var result = await _vendorRepository.GetActiveCategoriesAsync();
+            var result = await _vendorRepository.GetActiveVendorsAsync();
 
             if (_userAppInfoDto.MinimumLogLevel == LogLevel.Debug || _userAppInfoDto.MinimumLogLevel == LogLevel.Trace)
             {

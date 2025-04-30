@@ -1,5 +1,6 @@
 ﻿using dotNIES.API.Controllers;
 using dotNIES.API.Core.Repositories;
+using dotNIES.API.Core.Repositories.Common;
 using dotNIES.API.Core.Repositories.Internal;
 using dotNIES.Data.Dto.Common;
 using dotNIES.Data.Dto.Internal;

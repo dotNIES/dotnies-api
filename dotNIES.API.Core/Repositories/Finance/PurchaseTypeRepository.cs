@@ -38,6 +38,28 @@ public class PurchaseTypeRepository(IBaseRepository dataRepository, ILoggerServi
         }
     }
 
+    public async Task<PurchaseTypeDto?> GetPurchaseTypeByIdAsync(int id)
+    {
+        try
+        {
+            if (id <= 0)
+            {
+                _loggerService.SendError($"Invalid PurchaseType Id: {id}");
+                return null;
+            }
+
+            var sql = $"SELECT * FROM fin.PurchaseType WHERE Id = {id}";
+            var result = await _dataRepository.GetRecordAsync<PurchaseTypeDto>(sql);
+
+            return result;
+        }
+        catch (Exception e)
+        {
+            _loggerService.SendError($"An exception occurred while getting PurchaseType with Id {id}", e);
+            return null;
+        }
+    }
+
     [Obsolete("Update method is not implemented yet.", true)]
     public async Task<int> Insert(PurchaseTypeDto PurchaseTypeDto)
     {

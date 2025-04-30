@@ -164,6 +164,7 @@ public class GeneralLedgerDetailRepository(IBaseRepository dataRepository,
             }
 
             // Deleting a general ledger is not allowed. We issue a soft delete instead.
+            // TODO: Implement a hard delete as well when checking the transaction against the bank.
             var result = await _dataRepository.SoftDeleteRecordAsync(generalLedgerDetailDto);
 
             if (result == false)

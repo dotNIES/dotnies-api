@@ -38,6 +38,28 @@ public class PaymentTypeRepository(IBaseRepository dataRepository, ILoggerServic
         }
     }
 
+    public async Task<PaymentTypeDto?> GetPaymentTypeByIdAsync(int id)
+    {
+        try
+        {
+            if (id <= 0)
+            {
+                _loggerService.SendError($"Invalid PaymentType Id: {id}");
+                return null;
+            }
+
+            var sql = $"SELECT * FROM fin.PaymentType WHERE Id = {id}";
+            var result = await _dataRepository.GetRecordAsync<PaymentTypeDto>(sql);
+
+            return result;
+        }
+        catch (Exception e)
+        {
+            _loggerService.SendError($"An exception occurred while getting PaymentType with Id {id}", e);
+            return null;
+        }
+    }
+
     [Obsolete("Update method is not implemented yet.", true)]
     public async Task<int> Insert(PaymentTypeDto PaymentTypeDto)
     {

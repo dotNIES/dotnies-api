@@ -1,6 +1,6 @@
 ﻿using dotNIES.Data.Dto.Common;
 
-namespace dotNIES.API.Core.Repositories;
+namespace dotNIES.API.Core.Repositories.Common;
 public interface ICategoryRepository
 {
     Task<bool> Delete(CategoryDto categoryDto);
