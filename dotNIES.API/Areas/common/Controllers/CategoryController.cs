@@ -38,28 +38,18 @@ public class CategoryController : BaseController
     {
         try
         {
-            var result = await _baseDataService.GetAllAsync<CategoryDto>("Category");
+            var result = await _baseDataService.GetAllAsync<CategoryDto>("Category", "common");
 
             if (_userAppInfoDto.MinimumLogLevel is LogLevel.Debug or LogLevel.Trace)
             {
-                var logMessage = new LogMessageModel
-                {
-                    Message = $"Getting all records from Category returned {result.Count()} records",
-                    LogLevel = LogLevel.Debug,
-                };
-                WeakReferenceMessenger.Default.Send(logMessage);
+                _loggerService.SendDebugInfo($"Getting all records from Category returned {result.Count()} records");
             }
 
             return Ok(result);
         }
         catch (Exception e)
         {
-            var logMessage = new LogMessageModel
-            {
-                Message = $"An exception occurred while getting all records from Category",
-                LogLevel = LogLevel.Error,
-            };
-            WeakReferenceMessenger.Default.Send(logMessage);
+            _loggerService.SendError("An exception occurred while getting all records from Category", e);
             return new BadRequestResult();
         }
     }
@@ -69,28 +59,25 @@ public class CategoryController : BaseController
     {
         try
         {
-            var result = await _baseDataService.GetDataAsync<CategoryDto>("SELECT * FROM Category WHERE IsActive = 1 AND IsDeleted = 0");
+            var result = await _baseDataService.GetDataAsync<CategoryDto>("SELECT " +
+                                                                          "   * " +
+                                                                          "FROM " +
+                                                                          "   common.Category " +
+                                                                          "WHERE " +
+                                                                          "   IsActive = 1 " +
+                                                                          "   AND IsDeleted = 0"
+                                                                          );
 
             if (_userAppInfoDto.MinimumLogLevel == LogLevel.Debug || _userAppInfoDto.MinimumLogLevel == LogLevel.Trace)
             {
-                var logMessage = new LogMessageModel
-                {
-                    Message = $"Getting all records from Category returned {result.Count()} records",
-                    LogLevel = LogLevel.Debug,
-                };
-                WeakReferenceMessenger.Default.Send(logMessage);
+                _loggerService.SendDebugInfo($"Getting all records from Category returned {result.Count()} records");
             }
 
             return Ok(result);
         }
         catch (Exception e)
         {
-            var logMessage = new LogMessageModel
-            {
-                Message = $"An exception occurred while getting all records from Category",
-                LogLevel = LogLevel.Error,
-            };
-            WeakReferenceMessenger.Default.Send(logMessage);
+            _loggerService.SendError($"An exception occurred while getting all records from Category", e);
             return new BadRequestResult();
         }
     }

@@ -58,6 +58,32 @@ public class BaseRepository : IBaseRepository
         return result;
     }
 
+    public async Task<IEnumerable<T>> GetAllAsync<T>(string tableName, string schemaName)
+    {
+        LogMessageModel logMessage;
+
+        if (string.IsNullOrWhiteSpace(tableName) || string.IsNullOrWhiteSpace(schemaName))
+        {
+            throw new ArgumentException("The tablename and schema name cannot be null or empty.", nameof(tableName));
+        }
+
+        // Log the SQL statement if logging is enabled
+        if (_userAppInfoDto.LogSqlStatements)
+        {
+            logMessage = new LogMessageModel
+            {
+                Message = $"Executing base SQL Statement GetAll for table: {tableName}",
+                LogLevel = LogLevel.Information,
+            };
+            WeakReferenceMessenger.Default.Send(logMessage);
+        }
+
+        using IDbConnection connection = new SqlConnection(_appInfoDto.ConnectionString);
+        var result = await connection.QueryAsync<T>($"SELECT * FROM {schemaName}.{tableName}");
+
+        return result;
+    }
+
     public async Task<IEnumerable<T>> GetDataAsync<T>(string sqlStatement)
     {
         LogMessageModel logMessage;

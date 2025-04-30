@@ -6,17 +6,19 @@ using dotNIES.Data.Dto.Internal;
 using dotNIES.Data.Logging.Messages;
 using dotNIES.Data.Logging.Models;
 using dotNIES.Data.Logging.Services;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
+using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
 
-ConfigureServices(builder.Services);
 RegisterDI(builder.Services);
+ConfigureServices(builder.Services);
 
 var app = builder.Build();
-ConfigureMiddleware(app);
-
 InitializeBaseObjects(app.Services);
+ConfigureMiddleware(app);
 
 app.Run();
 
@@ -28,9 +30,53 @@ void ConfigureServices(IServiceCollection services)
     services.AddSwaggerGen(c =>
     {
         c.SwaggerDoc("v1", new OpenApiInfo { Title = ".NIES API", Version = "v1" });
+
+        c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
+        {
+            Description = "JWT Authorization header using the Bearer scheme. Example: \"Authorization: Bearer {token}\"",
+            Name = "Authorization",
+            In = ParameterLocation.Header,
+            Type = SecuritySchemeType.ApiKey,
+            Scheme = "Bearer"
+        });
+
+        c.AddSecurityRequirement(new OpenApiSecurityRequirement
+        {
+            {
+                new OpenApiSecurityScheme
+                {
+                    Reference = new OpenApiReference
+                    {
+                        Type = ReferenceType.SecurityScheme,
+                        Id = "Bearer"
+                    }
+                },
+                new string[] {}
+            }
+        });
     });
 
     services.AddHealthChecks();
+
+    builder.Services.AddAuthentication(options =>
+    {
+        options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+        options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+    })
+    .AddJwtBearer(options =>
+    {
+        options.TokenValidationParameters = new TokenValidationParameters
+        {
+            ValidateIssuer = true,
+            ValidateAudience = true,
+            ValidateLifetime = true,
+            ValidateIssuerSigningKey = true,
+            ValidIssuer = builder.Configuration["Jwt:Issuer"],
+            ValidAudience = builder.Configuration["Jwt:Audience"],
+            IssuerSigningKey = new SymmetricSecurityKey(
+                Encoding.UTF8.GetBytes(builder.Configuration["Jwt:Key"]))
+        };
+    });
 }
 
 void RegisterDI(IServiceCollection services)
@@ -40,7 +86,7 @@ void RegisterDI(IServiceCollection services)
                             .Build();
 
     // Internal things
-    services.AddSingleton(config);
+    services.AddSingleton<IConfiguration>(config);
     services.AddSingleton<IUserAppInfoDto, UserAppInfoDto>();
     services.AddSingleton<IAppInfoDto, AppInfoDto>();
 
@@ -73,7 +119,7 @@ void InitializeBaseObjects(IServiceProvider serviceProvider)
     }
     else
     {
-        appInfoDto.IsDevelopment = config.GetSection("IsDevelopment").Value == "true";
+        appInfoDto.IsDevelopment = config.GetSection("IsDevelopment").Value?.ToLower() == "true";
     }
 
     // Get the minimum loglevel (default = Information)
@@ -116,7 +162,7 @@ void InitializeBaseObjects(IServiceProvider serviceProvider)
     }
     else
     {
-        appInfoDto.LogEntireRecord = config.GetSection("LogEntireRecord").Value == "true";
+        appInfoDto.LogEntireRecord = config.GetSection("LogEntireRecord").Value?.ToLower() == "true";
     }
 
     // get info about logging the sql statements
@@ -132,7 +178,7 @@ void InitializeBaseObjects(IServiceProvider serviceProvider)
     }
     else
     {
-        appInfoDto.LogSqlStatements = config.GetSection("LogSqlStatements").Value == "true";
+        appInfoDto.LogSqlStatements = config.GetSection("LogSqlStatements").Value?.ToLower() == "true";
     }
 
     // fill in the rest of the application parameters
@@ -148,7 +194,7 @@ void InitializeBaseObjects(IServiceProvider serviceProvider)
     // Get the connectionstring
     if (appInfoDto.IsDevelopment)
     {
-        userAppInfoDto.ConnectionString = config.GetConnectionString("TestConnectionString") ?? string.Empty;
+        userAppInfoDto.ConnectionString = config.GetSection("TestConnectionString").Value ?? string.Empty;
 
         var logMessage = new LogMessageModel
         {
@@ -159,7 +205,7 @@ void InitializeBaseObjects(IServiceProvider serviceProvider)
     }
     else
     {
-        userAppInfoDto.ConnectionString = config.GetConnectionString("ProdConnectionString") ?? string.Empty;
+        userAppInfoDto.ConnectionString = config.GetSection("ProdConnectionString").Value ?? string.Empty;
 
         var logMessage = new LogMessageModel
         {
