@@ -18,5 +18,6 @@ public interface ICategoryService
     Task<IEnumerable<CategoryDto>> GetAllAsync();
 
     Task<int> Insert(CategoryDto categoryDto);
+
     Task<bool> Update(CategoryDto categoryDto);
 }

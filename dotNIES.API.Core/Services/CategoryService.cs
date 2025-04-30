@@ -1,5 +1,6 @@
 ﻿using CommunityToolkit.Mvvm.Messaging;
 using dotNIES.API.Core.Helpers;
+using dotNIES.API.Core.Repositories.Internal;
 using dotNIES.Data.Dto.Common;
 using dotNIES.Data.Logging.Models;
 using Microsoft.Extensions.Logging;
@@ -11,9 +12,9 @@ using System.Threading.Tasks;
 
 namespace dotNIES.API.Core.Services;
 
-public class CategoryService(IBaseDataService baseDataService) : ICategoryService
+public class CategoryService(IBaseRepository baseDataRepository) : ICategoryService
 {
-    private readonly IBaseDataService _baseDataService = baseDataService;
+    private readonly IBaseRepository _baseDataService = baseDataRepository;
 
     public async Task<IEnumerable<CategoryDto>> GetAllAsync()
     {
@@ -56,18 +57,21 @@ public class CategoryService(IBaseDataService baseDataService) : ICategoryServic
         }
     }
 
+    [Obsolete("Update method is not implemented yet.", true)]
     public async Task<int> Insert(CategoryDto categoryDto)
     {
         await Task.Yield();
         throw new NotImplementedException("Insert method is not implemented yet.");
     }
 
+    [Obsolete("Update method is not implemented yet.", true)]
     public async Task<bool> Update(CategoryDto categoryDto)
     {
         await Task.Yield();
         throw new NotImplementedException("Update method is not implemented yet.");
     }
 
+    [Obsolete("Update method is not implemented yet.", true)]
     public async Task<bool> Delete(CategoryDto categoryDto)
     {
         await Task.Yield();

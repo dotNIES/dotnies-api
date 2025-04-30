@@ -1,5 +1,6 @@
 ﻿using CommunityToolkit.Mvvm.Messaging;
 using dotNIES.API.Controllers;
+using dotNIES.API.Core.Repositories.Internal;
 using dotNIES.API.Core.Services;
 using dotNIES.Data.Dto.Common;
 using dotNIES.Data.Dto.Internal;
@@ -19,12 +20,12 @@ public class CategoryController : BaseController
     private readonly ILoggerService _loggerService;
     private readonly IAppInfoDto _appInfoDto;
     private readonly IUserAppInfoDto _userAppInfoDto;
-    private readonly IBaseDataService _baseDataService;
+    private readonly IBaseRepository _baseDataService;
 
     public CategoryController(ILoggerService loggerService,
                               IAppInfoDto appInfoDto,
                               IUserAppInfoDto userAppInfoDto,
-                              IBaseDataService baseDataService) : base(loggerService, appInfoDto, userAppInfoDto)
+                              IBaseRepository baseDataService) : base(loggerService, appInfoDto, userAppInfoDto)
     {
         _loggerService = loggerService;
         _appInfoDto = appInfoDto;

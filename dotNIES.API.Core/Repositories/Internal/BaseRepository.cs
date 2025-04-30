@@ -7,20 +7,23 @@ using dotNIES.Data.Logging.Models;
 using dotNIES.Data.Logging.Services;
 using Microsoft.Data.SqlClient;
 using Microsoft.Extensions.Logging;
+using System;
+using System.Collections.Generic;
 using System.Data;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
 
-namespace dotNIES.API.Core.Services;
-
-public class BaseDataService : IBaseDataService
+namespace dotNIES.API.Core.Repositories.Internal;
+public class BaseRepository : IBaseRepository
 {
-    // NOG DE 2 objecten opnieuw zoeken in devops
     private readonly IAppInfoDto _appInfoDto;
     private readonly IUserAppInfoDto _userAppInfoDto;
     private readonly ILoggerService _loggerService;
 
     private string _connectionString = string.Empty;
 
-    public BaseDataService(IAppInfoDto appInfoDto, IUserAppInfoDto userAppInfoDto, ILoggerService loggerService)
+    public BaseRepository(IAppInfoDto appInfoDto, IUserAppInfoDto userAppInfoDto, ILoggerService loggerService)
     {
         _appInfoDto = appInfoDto;
         _userAppInfoDto = userAppInfoDto;
@@ -519,3 +522,4 @@ public class BaseDataService : IBaseDataService
         }
     }
 }
+

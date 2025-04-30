@@ -1,7 +1,5 @@
 ﻿using dotNIES.Data.Dto.Internal;
 using dotNIES.Data.Logging.Services;
-using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
@@ -15,6 +13,7 @@ namespace dotNIES.API.Controllers;
 public class AuthController : BaseController
 {
     private readonly IConfiguration _configuration;
+    private readonly ILoggerService _loggerService;
 
     public AuthController(IConfiguration configuration,
                           ILoggerService loggerService,
@@ -23,6 +22,7 @@ public class AuthController : BaseController
                          ) : base(loggerService, appInfoDto, userAppInfoDto)
     {
         _configuration = configuration;
+        _loggerService = loggerService;
     }
 
     [HttpPost("login")]
@@ -32,8 +32,14 @@ public class AuthController : BaseController
         if (IsValidUser(login))
         {
             var token = GenerateJwtToken(login.Username);
+
+            _loggerService.SendInformation($"Login attempt SUCCEEDED for username {login.Username}");
+
             return Ok(new { token });
         }
+
+        _loggerService.SendInformation($"Login attempt FAILED for username {login.Username}");
+
         return Unauthorized();
     }
 
