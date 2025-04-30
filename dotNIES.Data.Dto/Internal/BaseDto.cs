@@ -14,6 +14,7 @@ namespace dotNIES.Data.Dto.Internal;
 public class BaseDto
 {
     [Required]
+    [Key]
     public int Id { get; set; }
 
     [Required]
@@ -34,7 +35,8 @@ public class BaseDto
 
 public class BaseGuidDto
 {
-    [Required] 
+    [Required]
+    [Key]
     public Guid Id { get; set; }
 
     [Required] 

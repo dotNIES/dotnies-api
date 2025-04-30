@@ -5,6 +5,8 @@
     [CreatedBy]         NVARCHAR(128)       DEFAULT (USER_NAME()) NOT NULL,
     [LastModifiedOn]    DATETIME2 (7)       DEFAULT (GETUTCDATE()) NOT NULL,
     [LastModifiedBy]    NVARCHAR(128)       DEFAULT (USER_NAME())NOT NULL,
+    [GeneralLedgerId]   INT                 NOT NULL,
+    [IsDeleted]         BIT                 DEFAULT (0) NOT NULL,
     [PurchaseTypeId]    INT                 NOT NULL,
     [CategoryId]        INT                 NOT NULL,
     [EntryDate]         DATETIME2 (7)       NOT NULL,
@@ -16,6 +18,7 @@
     [Debit]             BIT                 NOT NULL,
     [Description]       VARCHAR (100)       NULL,
     PRIMARY KEY CLUSTERED ([Id] ASC), 
+    CONSTRAINT [FK_GeneralLedgerDetail_GeneralLedger] FOREIGN KEY ([GeneralLedgerId]) REFERENCES [fin].[GeneralLedger]([Id]),
     CONSTRAINT [FK_GeneralLedgerDetail_PurchaseType] FOREIGN KEY ([PurchaseTypeId]) REFERENCES [fin].[PurchaseType]([Id]),
     CONSTRAINT [FK_GeneralLedgerDetail_Category] FOREIGN KEY ([CategoryId]) REFERENCES [common].[Category]([Id])
 )

@@ -4,6 +4,7 @@
     [CreatedBy]         NVARCHAR(128)       DEFAULT (USER_NAME()) NOT NULL,
     [LastModifiedOn]    DATETIME2 (7)       DEFAULT (GETUTCDATE()) NOT NULL,
     [LastModifiedBy]    NVARCHAR(128)       DEFAULT (USER_NAME())NOT NULL,
+    [IsDeleted]         BIT                 DEFAULT (0) NOT NULL,
     [VendorId]          INT                 NOT NULL,
     [PaymentTypeId]     INT                 NOT NULL,
     [EntryDate]         DATETIME2 (7)       NOT NULL,
