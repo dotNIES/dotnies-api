@@ -1,19 +1,14 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using dotNIES.Data.Dto.Internal;
 using System.ComponentModel.DataAnnotations;
-using System.ComponentModel;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
-namespace dotNIES.Data.Dto.Internal;
+namespace dotNIES.Data.Dto.Finance;
 
 public class VendorDto : BaseDto
 {
     [Required]
     public int VendorTypeId { get; set; }
 
-    [Required] 
+    [Required]
     public int CategoryId { get; set; }
 
     [Required]
