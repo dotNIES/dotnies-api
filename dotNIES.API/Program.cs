@@ -1,7 +1,5 @@
 using CommunityToolkit.Mvvm.Messaging;
-using dotNIES.API.Areas.common.Controllers;
 using dotNIES.API.Core.Repositories.Internal;
-using dotNIES.API.Core.Services;
 using dotNIES.Data.Dto.Internal;
 using dotNIES.Data.Logging.Messages;
 using dotNIES.Data.Logging.Models;
@@ -95,7 +93,6 @@ void RegisterDI(IServiceCollection services)
 
     // dotNIES.API.Core services
     services.AddSingleton<IBaseRepository, BaseRepository>();
-    services.AddScoped<ICategoryService, CategoryService>();
 }
 
 void InitializeBaseObjects(IServiceProvider serviceProvider)
