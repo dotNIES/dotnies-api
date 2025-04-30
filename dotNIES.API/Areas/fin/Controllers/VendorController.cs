@@ -1,6 +1,7 @@
 ﻿using dotNIES.API.Controllers;
-using dotNIES.API.Core.Repositories.Internal;
+using dotNIES.API.Core.Repositories;
 using dotNIES.Data.Dto.Common;
+using dotNIES.Data.Dto.Finance;
 using dotNIES.Data.Dto.Internal;
 using dotNIES.Data.Logging.Services;
 using Microsoft.AspNetCore.Authorization;
@@ -17,17 +18,17 @@ public class VendorController : BaseController
     private readonly ILoggerService _loggerService;
     private readonly IAppInfoDto _appInfoDto;
     private readonly IUserAppInfoDto _userAppInfoDto;
-    private readonly IBaseRepository _baseDataService;
+    private readonly IVendorRepository _vendorRepository;
 
     public VendorController(ILoggerService loggerService,
                               IAppInfoDto appInfoDto,
                               IUserAppInfoDto userAppInfoDto,
-                              IBaseRepository baseDataService) : base(loggerService, appInfoDto, userAppInfoDto)
+                              IVendorRepository vendorRepository) : base(loggerService, appInfoDto, userAppInfoDto)
     {
         _loggerService = loggerService;
         _appInfoDto = appInfoDto;
         _userAppInfoDto = userAppInfoDto;
-        _baseDataService = baseDataService;
+        _vendorRepository = vendorRepository;
     }
 
     [HttpGet("GetAll")]
@@ -35,7 +36,8 @@ public class VendorController : BaseController
     {
         try
         {
-            var result = await _baseDataService.GetAllAsync<VendorDto>("Vendor", "fin");
+            var result = await _vendorRepository.GetAllAsync();
+
             if (_userAppInfoDto.MinimumLogLevel is LogLevel.Debug or LogLevel.Trace)
             {
                 _loggerService.SendDebugInfo($"Getting all records from Vendor returned {result.Count()} records");
@@ -54,14 +56,7 @@ public class VendorController : BaseController
     {
         try
         {
-            var result = await _baseDataService.GetDataAsync<CategoryDto>("SELECT " +
-                                                                          "   * " +
-                                                                          "FROM " +
-                                                                          "   fin.Vendor " +
-                                                                          "WHERE " +
-                                                                          "   IsActive = 1 " +
-                                                                          "   AND IsDeleted = 0"
-                                                                          );
+            var result = await _vendorRepository.GetActiveCategoriesAsync();
 
             if (_userAppInfoDto.MinimumLogLevel == LogLevel.Debug || _userAppInfoDto.MinimumLogLevel == LogLevel.Trace)
             {

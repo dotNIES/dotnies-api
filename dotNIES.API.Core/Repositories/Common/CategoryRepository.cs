@@ -2,18 +2,18 @@
 using dotNIES.Data.Dto.Common;
 using dotNIES.Data.Logging.Services;
 
-namespace dotNIES.API.Core.Repositories;
+namespace dotNIES.API.Core.Repositories.Common;
 
-public class CategoryRepository(IBaseRepository baseRepository, ILoggerService loggerService)
+public class CategoryRepository(IBaseRepository dataRepository, ILoggerService loggerService) : ICategoryRepository
 {
-    private readonly IBaseRepository _dataService = baseRepository;
+    private readonly IBaseRepository _dataRepository = dataRepository;
     private readonly ILoggerService _loggerService = loggerService;
 
     public async Task<IEnumerable<CategoryDto>> GetAllAsync()
     {
         try
         {
-            var result = await _dataService.GetAllAsync<CategoryDto>("Category");
+            var result = await _dataRepository.GetAllAsync<CategoryDto>("Category", "common");
             return result;
         }
         catch (Exception e)
@@ -27,8 +27,15 @@ public class CategoryRepository(IBaseRepository baseRepository, ILoggerService l
     {
         try
         {
-            var sql = "SELECT * FROM Category WHERE IsActive = 1 AND IsDeleted = 0";
-            var result = await _dataService.GetDataAsync<CategoryDto>(sql);
+            var sql = "SELECT " +
+                "   * " +
+                "FROM " +
+                "   common.Category " +
+                "WHERE " +
+                "   IsActive = 1 " +
+                "   AND IsDeleted = 0";
+
+            var result = await _dataRepository.GetDataAsync<CategoryDto>(sql);
 
             return result;
         }

@@ -1,4 +1,5 @@
 ﻿using dotNIES.API.Controllers;
+using dotNIES.API.Core.Repositories;
 using dotNIES.API.Core.Repositories.Internal;
 using dotNIES.Data.Dto.Common;
 using dotNIES.Data.Dto.Internal;
@@ -17,17 +18,17 @@ public class CategoryController : BaseController
     private readonly ILoggerService _loggerService;
     private readonly IAppInfoDto _appInfoDto;
     private readonly IUserAppInfoDto _userAppInfoDto;
-    private readonly IBaseRepository _baseDataService;
+    private readonly ICategoryRepository _categoryRepository;
 
     public CategoryController(ILoggerService loggerService,
                               IAppInfoDto appInfoDto,
                               IUserAppInfoDto userAppInfoDto,
-                              IBaseRepository baseDataService) : base(loggerService, appInfoDto, userAppInfoDto)
+                              ICategoryRepository categoryRepository) : base(loggerService, appInfoDto, userAppInfoDto)
     {
         _loggerService = loggerService;
         _appInfoDto = appInfoDto;
         _userAppInfoDto = userAppInfoDto;
-        _baseDataService = baseDataService;
+        _categoryRepository = categoryRepository;
     }
 
     [HttpGet("GetAll")]
@@ -35,7 +36,7 @@ public class CategoryController : BaseController
     {
         try
         {
-            var result = await _baseDataService.GetAllAsync<CategoryDto>("Category", "common");
+            var result = await _categoryRepository.GetAllAsync();
 
             if (_userAppInfoDto.MinimumLogLevel is LogLevel.Debug or LogLevel.Trace)
             {
@@ -56,14 +57,7 @@ public class CategoryController : BaseController
     {
         try
         {
-            var result = await _baseDataService.GetDataAsync<CategoryDto>("SELECT " +
-                                                                          "   * " +
-                                                                          "FROM " +
-                                                                          "   common.Category " +
-                                                                          "WHERE " +
-                                                                          "   IsActive = 1 " +
-                                                                          "   AND IsDeleted = 0"
-                                                                          );
+            var result = await _categoryRepository.GetActiveCategoriesAsync();
 
             if (_userAppInfoDto.MinimumLogLevel == LogLevel.Debug || _userAppInfoDto.MinimumLogLevel == LogLevel.Trace)
             {
