@@ -6,6 +6,7 @@
     [LastModifiedOn]    DATETIME2 (7)       DEFAULT (GETUTCDATE()) NOT NULL,
     [LastModifiedBy]    NVARCHAR(128)       DEFAULT (USER_NAME())NOT NULL,
     [IsActive]          BIT                 DEFAULT ((1)) NOT NULL,
+    [IsDeleted]         BIT                 DEFAULT ((0)) NOT NULL,
     [VendorTypeId]      INT                 NOT NULL,
     [CategoryId]        INT                 NOT NULL,
     [Name]              NVARCHAR(100)       NOT NULL,
