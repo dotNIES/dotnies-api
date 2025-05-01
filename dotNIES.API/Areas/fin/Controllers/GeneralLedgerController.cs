@@ -15,7 +15,7 @@ public class GeneralLedgerController(ILoggerService loggerService,
                                      IAppInfoDto appInfoDto,
                                      IUserAppInfoDto userAppInfoDto,
                                      IGeneralLedgerRepository generalLedgerRepository,
-                                     IGeneralLedgerDetailRepository generalLedgerDetailRepository) : BaseController(loggerService, appInfoDto, _userAppInfoDto)
+                                     IGeneralLedgerDetailRepository generalLedgerDetailRepository) : BaseController(loggerService, appInfoDto, userAppInfoDto)
 {
     private readonly ILoggerService _loggerService = loggerService;
     private readonly IUserAppInfoDto _userAppInfoDto = userAppInfoDto;
@@ -182,45 +182,11 @@ public class GeneralLedgerController(ILoggerService loggerService,
                 return BadRequest("GeneralLedgerId cannot be 0");
             }
 
-            var generalLedger = await _generalLedgerRepository.GetGeneralLedger(generalLedgerId);
-            
-            if (generalLedger == null)
+            var result = await _generalLedgerRepository.Delete(generalLedgerId);
+
+            if (result == false)
             {
-                return BadRequest("GeneralLedgerDto not found");
-            }
-
-            // delete the details first
-            var generalLedgerDetails = await _generalLedgerDetailRepository.GetGeneralLedgerDetailsForGL(generalLedgerId);
-
-            if (generalLedgerDetails != null && generalLedgerDetails.Count() > 0)
-            {
-                _loggerService.SendInformation($"Deleting {generalLedgerDetails.Count()} GeneralLedgerDetails for GeneralLedger {generalLedgerId}");
-
-                var deleteResultGLD = true;
-
-                foreach (var generalLedgerDetail in generalLedgerDetails)
-                {
-                    deleteResultGLD = await _generalLedgerDetailRepository.Delete(generalLedgerDetail);
-
-                    if (!deleteResultGLD)
-                    {
-                        _loggerService.SendError("An error occurred while deleting the GeneralLedgerDetail");
-                    }
-                }
-            }
-
-            // delete the general ledger
-            var result = await _generalLedgerRepository.Delete(generalLedger);
-
-            if (!result)
-            {
-                _loggerService.SendError("An error occurred while inserting the new GeneralLedger");
-                _loggerService.SendError($"Record: {System.Text.Json.JsonSerializer.Serialize(generalLedger)}"); // we do not care if the option 'log entire record is set' we want to see the record that failed
-            }
-
-            if (_userAppInfoDto.MinimumLogLevel is LogLevel.Debug or LogLevel.Trace)
-            {
-                _loggerService.SendDebugInfo($"New GeneralLedger inserted {result}");
+                _loggerService.SendError($"An error occurred while deleting the GeneralLedger with Id {generalLedgerId}");
             }
 
             return Ok(result);

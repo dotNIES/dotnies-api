@@ -3,7 +3,7 @@
 namespace dotNIES.API.Core.Repositories.Finance;
 public interface IGeneralLedgerDetailRepository
 {
-    Task<bool> Delete(GeneralLedgerDetailDto generalLedgerDetailDto);
+    Task<bool> Delete(int generalLedgerDetailId);
     Task<IEnumerable<GeneralLedgerDetailDto>> GetAllAsync();
     Task<IEnumerable<GeneralLedgerDetailDto>> GetDeletedGeneralLedgerDetailsAsync();
     Task<GeneralLedgerDetailDto?> GetGeneralLedgerDetail(int id);

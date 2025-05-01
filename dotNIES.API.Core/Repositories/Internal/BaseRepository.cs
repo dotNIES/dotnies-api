@@ -7,12 +7,7 @@ using dotNIES.Data.Logging.Models;
 using dotNIES.Data.Logging.Services;
 using Microsoft.Data.SqlClient;
 using Microsoft.Extensions.Logging;
-using System;
-using System.Collections.Generic;
 using System.Data;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace dotNIES.API.Core.Repositories.Internal;
 public class BaseRepository : IBaseRepository
@@ -22,6 +17,7 @@ public class BaseRepository : IBaseRepository
     private readonly ILoggerService _loggerService;
 
     private string _connectionString = string.Empty;
+    private IDbConnection _connection;
 
     public BaseRepository(IAppInfoDto appInfoDto, IUserAppInfoDto userAppInfoDto, ILoggerService loggerService)
     {
@@ -567,6 +563,235 @@ public class BaseRepository : IBaseRepository
 
         return result;
     }
+
+    /* VERSIONS WITH TRANSACTIONS */
+    public async Task<T?> QueryFirstOrDefaultAsync<T>(string sql, object? parameters = null, IDbTransaction? transaction = null)
+    {
+        var fallBackConnection = await GetConnectionAsync();
+        var connection = transaction?.Connection ?? fallBackConnection;
+        return await connection.QueryFirstOrDefaultAsync<T>(sql, parameters, transaction);
+    }
+
+    public async Task<IEnumerable<T>?> QueryAsync<T>(string sql, object? parameters = null, IDbTransaction? transaction = null)
+    {
+        var fallBackConnection = await GetConnectionAsync();
+        var connection = transaction?.Connection ?? fallBackConnection;
+        return await connection.QueryAsync<T>(sql, parameters, transaction);
+    }
+
+    public async Task<bool> DeleteRecordAsync<T>(T model, IDbTransaction? transaction = null) where T : class
+    {
+        LogMessageModel logMessage;
+
+        if (model == null)
+        {
+            throw new ArgumentNullException(nameof(model), "The model cannot be null.");
+        }
+
+        // Log the SQL statement if logging is enabled
+        if (_userAppInfoDto.LogSqlStatements)
+        {
+            _loggerService.SendDebugInfo($"Executing delete statement for {model?.GetType()}");
+        }
+
+        if (_userAppInfoDto.LogEntireRecord)
+        {
+            // Log the entire record as JSON String
+            var recordAsJson = System.Text.Json.JsonSerializer.Serialize(model);
+            _loggerService.SendDebugInfo($"Record: {recordAsJson}");
+        }
+
+
+        // ACTUAL DATABASE CALL       
+        try
+        {
+            var connection = transaction?.Connection ?? await GetConnectionAsync();
+            var result = await connection.DeleteAsync(model, transaction: transaction);
+
+            if (!result)
+            {
+                logMessage = new LogMessageModel
+                {
+                    Message = $"The record {model?.GetType()} is NOT deleted!",
+                    LogLevel = LogLevel.Error,
+                };
+                WeakReferenceMessenger.Default.Send(logMessage);
+            }
+            else
+            {
+                logMessage = new LogMessageModel
+                {
+                    Message = $"The record {model?.GetType()} was successfully deleted",
+                    LogLevel = LogLevel.Information,
+                };
+                WeakReferenceMessenger.Default.Send(logMessage);
+            }
+
+            return result;
+        }
+        catch (SqlException sqlE) when (sqlE.Message.Contains("REFERENCE constraint"))
+        {
+            logMessage = new LogMessageModel
+            {
+                Message = $"The record {model?.GetType()} has references to other records and cannot be deleted. A softdelete was issued instead.",
+                LogLevel = LogLevel.Error,
+            };
+            WeakReferenceMessenger.Default.Send(logMessage);
+            return false;
+        }
+    }
+
+    public async Task<bool> SoftDeleteRecordAsync<T>(T model, IDbTransaction? transaction = null) where T : class
+    {
+        // TODO: this uses reflection for checking delete / isactive property
+        //       this is not the best way to do this, but it works for now.
+
+        LogMessageModel logMessage;
+        bool propertyIsActiveChanged = false;
+        bool propertyIsDeletedChanged = false;
+
+        if (model == null)
+        {
+            throw new ArgumentNullException(nameof(model), "The model cannot be null.");
+        }
+
+        // Log the SQL statement if logging is enabled
+        if (_userAppInfoDto.LogSqlStatements)
+        {
+            logMessage = new LogMessageModel
+            {
+                Message = $"Executing delete statement for {model?.GetType()}",
+                LogLevel = LogLevel.Debug,
+            };
+            WeakReferenceMessenger.Default.Send(logMessage);
+        }
+
+        if (_userAppInfoDto.LogEntireRecord)
+        {
+            // Log the entire record as JSON String
+            var recordAsJson = System.Text.Json.JsonSerializer.Serialize(model);
+            logMessage = new LogMessageModel
+            {
+                Message = $"Record: {recordAsJson}",
+                LogLevel = LogLevel.Debug,
+            };
+            WeakReferenceMessenger.Default.Send(logMessage);
+        }
+
+
+        // check if there is a field IsActive and if so, change it to false
+        var isActiveProperty = typeof(T).GetProperty("IsActive");
+        var isDeleteProperty = typeof(T).GetProperty("IsDeleted");
+
+        if (isActiveProperty != null && isActiveProperty.PropertyType == typeof(bool) && isActiveProperty.CanWrite)
+        {
+            isActiveProperty.SetValue(model, false);
+            propertyIsActiveChanged = true;
+        }
+        else
+        {
+            propertyIsActiveChanged = false;
+        }
+
+        isDeleteProperty = typeof(T).GetProperty("IsDeleted");
+
+        if (isDeleteProperty != null && isDeleteProperty.PropertyType == typeof(bool) && isDeleteProperty.CanWrite)
+        {
+            isDeleteProperty.SetValue(model, true);
+            propertyIsDeletedChanged = true;
+        }
+        else
+        {
+            propertyIsDeletedChanged = false;
+        }
+
+        if (!propertyIsActiveChanged || !propertyIsDeletedChanged)
+        {
+            logMessage = new LogMessageModel
+            {
+                Message = $"The record {model?.GetType()} cannot be soft-deleted because neither IsActive nor IsDeleted exists in the table",
+                LogLevel = LogLevel.Error,
+            };
+            WeakReferenceMessenger.Default.Send(logMessage);
+
+            return false;
+        }
+
+
+        // ACTUAL DATABASE CALL
+        var fallBackConnection = await GetConnectionAsync();
+        var connection = transaction?.Connection ?? fallBackConnection;
+        var result = await connection.UpdateAsync(model, transaction: transaction);
+
+        if (!result)
+        {
+            logMessage = new LogMessageModel
+            {
+                Message = $"The record {model?.GetType()} is NOT updated for softdelete!",
+                LogLevel = LogLevel.Error,
+            };
+            WeakReferenceMessenger.Default.Send(logMessage);
+        }
+        else
+        {
+            logMessage = new LogMessageModel
+            {
+                Message = $"The record {model?.GetType()} was successfully soft deleted",
+                LogLevel = LogLevel.Information,
+            };
+            WeakReferenceMessenger.Default.Send(logMessage);
+        }
+
+        return result;
+    }
+
+    #region Transactional methods
+    /* TRANSACTIONAL METHODS */
+
+    public async Task<IDbConnection> GetConnectionAsync()
+    {
+        if (_connection == null || _connection.State == ConnectionState.Closed)
+        {
+            _connection = new SqlConnection(_connectionString);
+        }
+
+        if (_connection.State != ConnectionState.Open)
+        {
+            await (_connection as SqlConnection).OpenAsync();
+        }
+
+        return _connection;
+    }
+
+    public async Task<IDbTransaction> StartTransactionAsync()
+    {
+        var connection = await GetConnectionAsync();
+        return connection.BeginTransaction();
+    }
+
+    public Task CommitTransactionAsync(IDbTransaction transaction)
+    {
+        if (transaction != null)
+        {
+            transaction.Commit();
+            transaction.Dispose();
+        }
+
+        return Task.CompletedTask;
+    }
+
+    public Task RollbackTransactionAsync(IDbTransaction transaction)
+    {
+        if (transaction != null)
+        {
+            transaction.Rollback();
+            transaction.Dispose();
+        }
+
+        return Task.CompletedTask;
+    }
+
+    #endregion
 
     /// <summary>
     /// Checks if the connection string is set in the app info DTO.

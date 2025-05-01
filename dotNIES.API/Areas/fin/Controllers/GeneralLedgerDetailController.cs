@@ -20,8 +20,8 @@ public class GeneralLedgerDetailController(ILoggerService loggerService,
     private readonly ILoggerService _loggerService = loggerService;
     private readonly IGeneralLedgerDetailRepository _generalLedgerDetailRepository = generalLedgerDetailRepository;
 
-    [HttpGet("GetGeneralLedgerDetails")]
-    public async Task<ActionResult<IEnumerable<GeneralLedgerDetailDto>>> GetGeneralLedgerDetails([FromBody] int generalLedgerId)
+    [HttpPost("GetGeneralLedgerDetails/{generalLedgerId}")]
+    public async Task<ActionResult<IEnumerable<GeneralLedgerDetailDto>?>> GetGeneralLedgerDetails(int generalLedgerId)
     {
         try
         {
@@ -30,7 +30,11 @@ public class GeneralLedgerDetailController(ILoggerService loggerService,
                 return BadRequest("GeneralLedgerId cannot be 0");
             }
 
-            throw new NotImplementedException("Not implemented yet");
+            var result = await _generalLedgerDetailRepository.GetGeneralLedgerDetailsForGL(generalLedgerId);
+
+            _loggerService.SendDebugInfo($"Getting all records from GetGeneralLedgerDetails for GeneralLedgerId {generalLedgerId} returned {result?.Count()} records");
+
+            return Ok(result);
         }
         catch (Exception e)
         {
@@ -39,8 +43,8 @@ public class GeneralLedgerDetailController(ILoggerService loggerService,
         }
     }
 
-    [HttpPost("InsertGeneralLedgerDetail")]
-    public async Task<ActionResult<int>> InsertGeneralLedgerDetail([FromBody] GeneralLedgerDetailDto generalLedgerDetail)
+    [HttpPost("InsertGeneralLedgerDetail/{generalLedgerDetail}")]
+    public async Task<ActionResult<int>> InsertGeneralLedgerDetail(GeneralLedgerDetailDto generalLedgerDetail)
     {
         try
         {
@@ -49,7 +53,11 @@ public class GeneralLedgerDetailController(ILoggerService loggerService,
                 return BadRequest("GeneralLedgerDetailDto cannot be null");
             }
 
-            throw new NotImplementedException("Not implemented yet");
+            var result = await _generalLedgerDetailRepository.Insert(generalLedgerDetail);
+            
+            _loggerService.SendDebugInfo($"Inserting GeneralLedgerDetailDto: {result > 0}");
+
+            return Ok(result);
         }
         catch (Exception e)
         {
@@ -58,8 +66,8 @@ public class GeneralLedgerDetailController(ILoggerService loggerService,
         }
     }
 
-    [HttpPost("UpdateGeneralLedgerDetail")]
-    public async Task<ActionResult<bool>> UpdateGeneralLedgerDetail([FromBody] GeneralLedgerDetailDto generalLedgerDetail)
+    [HttpPost("UpdateGeneralLedgerDetail/{generalLedgerDetail}")]
+    public async Task<ActionResult<bool>> UpdateGeneralLedgerDetail(GeneralLedgerDetailDto generalLedgerDetail)
     {
         try
         {
@@ -68,7 +76,19 @@ public class GeneralLedgerDetailController(ILoggerService loggerService,
                 return BadRequest("GeneralLedgerDetailDto cannot be null");
             }
 
-            throw new NotImplementedException("Not implemented yet");
+            var result = await _generalLedgerDetailRepository.Update(generalLedgerDetail);
+
+            if (!result)
+            {
+                _loggerService.SendError("An error occurred while updating the GeneralLedgerDetail");
+                _loggerService.SendError($"Record: {System.Text.Json.JsonSerializer.Serialize(generalLedgerDetail)}");
+                return Ok(false);
+            }
+            else
+            {
+                _loggerService.SendDebugInfo($"GeneralLedgerDetail {generalLedgerDetail.Id} updated: {result}");
+                return Ok(true);
+            }
         }
         catch (Exception e)
         {
@@ -77,8 +97,8 @@ public class GeneralLedgerDetailController(ILoggerService loggerService,
         }
     }
 
-    [HttpPost("DeleteGeneralLedgerDetail")]
-    public async Task<ActionResult<bool>> DeleteGeneralLedgerDetail([FromBody] int generalLedgerDetailId)
+    [HttpPost("DeleteGeneralLedgerDetail/{generalLedgerDetailId}")]
+    public async Task<ActionResult<bool>> DeleteGeneralLedgerDetail(int generalLedgerDetailId)
     {
         try
         {
@@ -87,7 +107,18 @@ public class GeneralLedgerDetailController(ILoggerService loggerService,
                 return BadRequest("GeneralLedgerId cannot be 0");
             }
 
-            throw new NotImplementedException("Not implemented yet");
+            var result = await _generalLedgerDetailRepository.Delete(generalLedgerDetailId);
+
+            if (!result)
+            {
+                _loggerService.SendError($"An error occurred while deleting the GeneralLedgerDetail Id: {generalLedgerDetailId}");
+                return Ok(false);
+            }
+            else
+            {
+                _loggerService.SendDebugInfo($"GeneralLedgerDetail {generalLedgerDetailId} deleted: {result}");
+                return Ok(true);
+            }
         }
         catch (Exception e)
         {
