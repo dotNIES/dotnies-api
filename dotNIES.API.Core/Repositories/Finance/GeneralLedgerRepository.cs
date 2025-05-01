@@ -2,6 +2,7 @@
 using dotNIES.Data.Dto.Finance;
 using dotNIES.Data.Dto.Internal;
 using dotNIES.Data.Logging.Services;
+using Microsoft.Extensions.Logging;
 
 namespace dotNIES.API.Core.Repositories.Finance;
 
@@ -59,6 +60,22 @@ public class GeneralLedgerRepository(IBaseRepository dataRepository,
         }
     }
 
+    public async Task<GeneralLedgerDto?> GetGeneralLedger(int id)
+    {
+        try
+        {
+            var sql = $"SELECT TOP(1) * FROM fin.GeneralLedger WHERE Id = {id}";
+            var result = await _dataRepository.GetRecordAsync<GeneralLedgerDto>(sql);
+
+            return result;
+        }
+        catch (Exception e)
+        {
+            _loggerService.SendError("An exception occurred while getting all records from GeneralLedger", e);
+            return null;
+        }
+    }
+
     public async Task<int> Insert(GeneralLedgerDto generalLedgerDto)
     {
         try
@@ -71,9 +88,13 @@ public class GeneralLedgerRepository(IBaseRepository dataRepository,
                 throw new ArgumentNullException(nameof(generalLedgerDto), "GeneralLedger object cannot be null");
             }
 
-            if (generalLedgerDto.Id > 0) generalLedgerDto.Id = 0; // reset the Id to 0
+            if (generalLedgerDto.Id > 0)
+            {
+                _loggerService.SendError("GeneralLedger Id is not 0, inserting valid Id not allowed");
+                throw new ArgumentOutOfRangeException(nameof(generalLedgerDto), "GeneralLedger Id is not 0, inserting valid Id not allowed");
+            }
 
-            var result = await _dataRepository.InsertAsync(generalLedgerDto);
+            var result = await _dataRepository.InsertAsync(generalLedgerDto); // db call
 
             if (result == 0)
             {
@@ -96,30 +117,30 @@ public class GeneralLedgerRepository(IBaseRepository dataRepository,
         }
     }
 
-    public async Task<bool> Update(GeneralLedgerDto generalLedgerDto)
+    public async Task<bool> Update(GeneralLedgerDto generalLedger)
     {
         try
         {
             _loggerService.SendDebugInfo("START updating general ledger");
 
-            if (generalLedgerDto == null)
+            if (generalLedger == null)
             {
                 _loggerService.SendError("GeneralLedgerDto is null");
-                throw new ArgumentNullException(nameof(generalLedgerDto), "GeneralLedger object cannot be null");
+                throw new ArgumentNullException(nameof(generalLedger), "GeneralLedger object cannot be null");
             }
 
-            if (generalLedgerDto.Id > 0)
+            if (generalLedger.Id < 1)
             {
                 _loggerService.SendError("GeneralLedgerDto.Id cannot be 0");
-                throw new ArgumentOutOfRangeException(nameof(generalLedgerDto), "GeneralLedger Id cannot be zero");
+                throw new ArgumentOutOfRangeException(nameof(generalLedger), "GeneralLedger Id cannot be zero");
             }
 
-            var result = await _dataRepository.UpdateRecordAsync(generalLedgerDto);
+            var result = await _dataRepository.UpdateRecordAsync(generalLedger);
 
             if (!result)
             {
                 _loggerService.SendError("An error occurred while updating the GeneralLedger");
-                _loggerService.SendError($"Record: {System.Text.Json.JsonSerializer.Serialize(generalLedgerDto)}"); // we do not care if the option 'log entire record is set' we want to see the record that failed
+                _loggerService.SendError($"Record: {System.Text.Json.JsonSerializer.Serialize(generalLedger)}"); // we do not care if the option 'log entire record is set' we want to see the record that failed
 
                 return false;
             }
@@ -131,7 +152,7 @@ public class GeneralLedgerRepository(IBaseRepository dataRepository,
         catch (Exception e)
         {
             _loggerService.SendError("An exception occurred while updating the GeneralLedger", e);
-            _loggerService.SendError($"Record: {System.Text.Json.JsonSerializer.Serialize(generalLedgerDto)}"); // we do not care if the option 'log entire record is set' we want to see the record that failed
+            _loggerService.SendError($"Record: {System.Text.Json.JsonSerializer.Serialize(generalLedger)}"); // we do not care if the option 'log entire record is set' we want to see the record that failed
 
             return false;
         }

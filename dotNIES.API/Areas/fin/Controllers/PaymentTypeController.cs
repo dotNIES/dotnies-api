@@ -17,7 +17,6 @@ public class PaymentTypeController(ILoggerService loggerService,
                                    IPaymentTypeRepository paymentTypeRepository) : BaseController(loggerService, appInfoDto, userAppInfoDto)
 {
     private readonly ILoggerService _loggerService = loggerService;
-    private readonly IAppInfoDto _appInfoDto = appInfoDto;
     private readonly IUserAppInfoDto _userAppInfoDto = userAppInfoDto;
     private readonly IPaymentTypeRepository _paymentTypeRepository = paymentTypeRepository;
 

@@ -47,13 +47,24 @@ public class BaseRepository : IBaseRepository
             logMessage = new LogMessageModel
             {
                 Message = $"Executing base SQL Statement GetAll for table: {tableName}",
-                LogLevel = LogLevel.Information,
+                LogLevel = LogLevel.Debug,
             };
             WeakReferenceMessenger.Default.Send(logMessage);
         }
 
         using IDbConnection connection = new SqlConnection(_appInfoDto.ConnectionString);
         var result = await connection.QueryAsync<T>($"SELECT * FROM {tableName}");
+
+        // Log the outcome if logging is enabled with debug or trace level
+        if (_userAppInfoDto.MinimumLogLevel == LogLevel.Debug || _userAppInfoDto.MinimumLogLevel == LogLevel.Trace)
+        {
+            logMessage = new LogMessageModel
+            {
+                Message = $"Executing base SQL Statement GetAll for table: {tableName} returned {result.Count()} records",
+                LogLevel = LogLevel.Debug,
+            };
+            WeakReferenceMessenger.Default.Send(logMessage);
+        }
 
         return result;
     }
@@ -73,13 +84,24 @@ public class BaseRepository : IBaseRepository
             logMessage = new LogMessageModel
             {
                 Message = $"Executing base SQL Statement GetAll for table: {tableName}",
-                LogLevel = LogLevel.Information,
+                LogLevel = LogLevel.Debug,
             };
             WeakReferenceMessenger.Default.Send(logMessage);
         }
 
         using IDbConnection connection = new SqlConnection(_appInfoDto.ConnectionString);
         var result = await connection.QueryAsync<T>($"SELECT * FROM {schemaName}.{tableName}");
+
+        // Log the outcome if logging is enabled with debug or trace level
+        if (_userAppInfoDto.MinimumLogLevel == LogLevel.Debug || _userAppInfoDto.MinimumLogLevel == LogLevel.Trace)
+        {
+            logMessage = new LogMessageModel
+            {
+                Message = $"Executing base SQL Statement GetAll for table: {tableName} and schame: {schemaName} returned {result.Count()} records",
+                LogLevel = LogLevel.Debug,
+            };
+            WeakReferenceMessenger.Default.Send(logMessage);
+        }
 
         return result;
     }
@@ -107,13 +129,16 @@ public class BaseRepository : IBaseRepository
         using IDbConnection connection = new SqlConnection(_connectionString);
         var result = await connection.QueryAsync<T>(sqlStatement);
 
-        // Log the result count
-        logMessage = new LogMessageModel
+        // Log the outcome if logging is enabled with debug or trace level
+        if (_userAppInfoDto.MinimumLogLevel == LogLevel.Debug || _userAppInfoDto.MinimumLogLevel == LogLevel.Trace)
         {
-            Message = $"Query returned: {result.Count()} records",
-            LogLevel = LogLevel.Information,
-        };
-        WeakReferenceMessenger.Default.Send(logMessage);
+            logMessage = new LogMessageModel
+            {
+                Message = $"Executing base SQL Statement GetAll with sql statement {sqlStatement} returned {result.Count()} records",
+                LogLevel = LogLevel.Debug,
+            };
+            WeakReferenceMessenger.Default.Send(logMessage);
+        }
 
         return result;
     }
@@ -138,6 +163,17 @@ public class BaseRepository : IBaseRepository
         using IDbConnection connection = new SqlConnection(_connectionString);
         var result = await connection.QuerySingleOrDefaultAsync<T>(sqlStatement);
 
+        // Log the outcome if logging is enabled with debug or trace level
+        if (_userAppInfoDto.MinimumLogLevel == LogLevel.Debug || _userAppInfoDto.MinimumLogLevel == LogLevel.Trace)
+        {
+            logMessage = new LogMessageModel
+            {
+                Message = $"Executing base SQL Statement {sqlStatement} returned the record {result is not null}",
+                LogLevel = LogLevel.Debug,
+            };
+            WeakReferenceMessenger.Default.Send(logMessage);
+        }
+
         return result;
     }
 
@@ -160,7 +196,7 @@ public class BaseRepository : IBaseRepository
                 logMessage = new LogMessageModel
                 {
                     Message = $"Executing Insert statement for {model?.GetType()}",
-                    LogLevel = LogLevel.Information,
+                    LogLevel = LogLevel.Debug,
                 };
                 WeakReferenceMessenger.Default.Send(logMessage);
             }
@@ -177,7 +213,7 @@ public class BaseRepository : IBaseRepository
                 logMessage = new LogMessageModel
                 {
                     Message = $"Record: {recordAsJson}",
-                    LogLevel = LogLevel.Information,
+                    LogLevel = LogLevel.Debug,
                 };
                 WeakReferenceMessenger.Default.Send(logMessage);
             }
@@ -202,7 +238,7 @@ public class BaseRepository : IBaseRepository
                     logMessage = new LogMessageModel
                     {
                         Message = $"Insert statement executed successfully, record inserted with id {id}.",
-                        LogLevel = LogLevel.Information,
+                        LogLevel = LogLevel.Debug,
                     };
                     WeakReferenceMessenger.Default.Send(logMessage);
 
@@ -217,7 +253,7 @@ public class BaseRepository : IBaseRepository
         }
         else
         {
-            throw new InvalidOperationException("The model doen't have a INT primary key, the method expects a primary key with name Id and type integer");
+            throw new InvalidOperationException("The model doesn't have a INT primary key, the method expects a primary key with name Id and type integer");
         }
     }
 
@@ -240,7 +276,7 @@ public class BaseRepository : IBaseRepository
                 logMessage = new LogMessageModel
                 {
                     Message = $"Executing Insert statement for {model?.GetType()}",
-                    LogLevel = LogLevel.Information,
+                    LogLevel = LogLevel.Debug,
                 };
                 WeakReferenceMessenger.Default.Send(logMessage);
             }
@@ -270,7 +306,7 @@ public class BaseRepository : IBaseRepository
                 logMessage = new LogMessageModel
                 {
                     Message = $"Record: {recordAsJson}",
-                    LogLevel = LogLevel.Information,
+                    LogLevel = LogLevel.Debug,
                 };
                 WeakReferenceMessenger.Default.Send(logMessage);
             }
@@ -295,7 +331,7 @@ public class BaseRepository : IBaseRepository
                     logMessage = new LogMessageModel
                     {
                         Message = $"Insert statement executed successfully, record inserted with id {id}.",
-                        LogLevel = LogLevel.Information,
+                        LogLevel = LogLevel.Debug,
                     };
                     WeakReferenceMessenger.Default.Send(logMessage);
 
@@ -329,7 +365,7 @@ public class BaseRepository : IBaseRepository
             logMessage = new LogMessageModel
             {
                 Message = $"Executing update statement for {model?.GetType()}",
-                LogLevel = LogLevel.Information,
+                LogLevel = LogLevel.Debug,
             };
             WeakReferenceMessenger.Default.Send(logMessage);
         }
@@ -346,7 +382,7 @@ public class BaseRepository : IBaseRepository
             logMessage = new LogMessageModel
             {
                 Message = $"Record: {recordAsJson}",
-                LogLevel = LogLevel.Information,
+                LogLevel = LogLevel.Debug,
             };
             WeakReferenceMessenger.Default.Send(logMessage);
         }
@@ -369,7 +405,7 @@ public class BaseRepository : IBaseRepository
             logMessage = new LogMessageModel
             {
                 Message = $"Executing delete statement for {model?.GetType()}",
-                LogLevel = LogLevel.Information,
+                LogLevel = LogLevel.Debug,
             };
             WeakReferenceMessenger.Default.Send(logMessage);
         }
@@ -381,7 +417,7 @@ public class BaseRepository : IBaseRepository
             logMessage = new LogMessageModel
             {
                 Message = $"Record: {recordAsJson}",
-                LogLevel = LogLevel.Information,
+                LogLevel = LogLevel.Debug,
             };
             WeakReferenceMessenger.Default.Send(logMessage);
         }
@@ -420,7 +456,7 @@ public class BaseRepository : IBaseRepository
             logMessage = new LogMessageModel
             {
                 Message = $"The record {model?.GetType()} has references to other records and cannot be deleted. A softdelete was issued instead.",
-                LogLevel = LogLevel.Information,
+                LogLevel = LogLevel.Error,
             };
             WeakReferenceMessenger.Default.Send(logMessage);
 
@@ -449,7 +485,7 @@ public class BaseRepository : IBaseRepository
             logMessage = new LogMessageModel
             {
                 Message = $"Executing delete statement for {model?.GetType()}",
-                LogLevel = LogLevel.Information,
+                LogLevel = LogLevel.Debug,
             };
             WeakReferenceMessenger.Default.Send(logMessage);
         }
@@ -461,7 +497,7 @@ public class BaseRepository : IBaseRepository
             logMessage = new LogMessageModel
             {
                 Message = $"Record: {recordAsJson}",
-                LogLevel = LogLevel.Information,
+                LogLevel = LogLevel.Debug,
             };
             WeakReferenceMessenger.Default.Send(logMessage);
         }

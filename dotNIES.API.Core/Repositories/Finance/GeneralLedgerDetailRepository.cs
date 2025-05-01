@@ -23,7 +23,7 @@ public class GeneralLedgerDetailRepository(IBaseRepository dataRepository,
         }
     }
 
-    public async Task<IEnumerable<GeneralLedgerDetailDto>> GetNotDeletedGeneralLedgersAsync()
+    public async Task<IEnumerable<GeneralLedgerDetailDto>> GetNotDeletedGeneralLedgerDetailsAsync()
     {
         try
         {
@@ -39,7 +39,7 @@ public class GeneralLedgerDetailRepository(IBaseRepository dataRepository,
         }
     }
 
-    public async Task<IEnumerable<GeneralLedgerDetailDto>> GetDeletedGeneralLedgersAsync()
+    public async Task<IEnumerable<GeneralLedgerDetailDto>> GetDeletedGeneralLedgerDetailsAsync()
     {
         try
         {
@@ -55,6 +55,38 @@ public class GeneralLedgerDetailRepository(IBaseRepository dataRepository,
         }
     }
 
+    public async Task<GeneralLedgerDetailDto?> GetGeneralLedgerDetail(int id)
+    {
+        try
+        {
+            var sql = $"SELECT TOP(1) * FROM fin.GeneralLedgerDetail WHERE Id = {id}";
+            var result = await _dataRepository.GetRecordAsync<GeneralLedgerDetailDto>(sql);
+
+            return result;
+        }
+        catch (Exception e)
+        {
+            _loggerService.SendError("An exception occurred while getting all records from GeneralLedger", e);
+            return null;
+        }
+    }
+
+    public async Task<IEnumerable<GeneralLedgerDetailDto>?> GetGeneralLedgerDetailsForGL(int generalLedgerId)
+    {
+        try
+        {
+            var sql = $"SELECT * FROM fin.GeneralLedgerDetail WHERE GeneralLedgerId = {generalLedgerId}";
+            var result = await _dataRepository.GetDataAsync<GeneralLedgerDetailDto>(sql);
+
+            return result;
+        }
+        catch (Exception e)
+        {
+            _loggerService.SendError("An exception occurred while getting all records from GeneralLedger", e);
+            return null;
+        }
+    }
+
     public async Task<int> Insert(GeneralLedgerDetailDto generalLedgerDetail)
     {
         try
@@ -67,15 +99,13 @@ public class GeneralLedgerDetailRepository(IBaseRepository dataRepository,
                 throw new ArgumentNullException(nameof(generalLedgerDetail), "GeneralLedgerDetail object cannot be null");
             }
 
-            if (generalLedgerDetail.GeneralLedgerId < 1)
+            if (generalLedgerDetail.GeneralLedgerId > 0)
             {
-                _loggerService.SendError("GeneralLedgerId cannot be 0");
-                throw new ArgumentOutOfRangeException(nameof(generalLedgerDetail), "GeneralLedgerId cannot be 0");
+                _loggerService.SendError("GeneralLedgerDetail Id is not 0, inserting valid Id not allowed");
+                throw new ArgumentOutOfRangeException(nameof(generalLedgerDetail), "GeneralLedger Id is not 0, inserting valid Id not allowed");
             }
 
-            if (generalLedgerDetail.Id > 0) generalLedgerDetail.Id = 0; // reset the Id to 0
-
-            var result = await _dataRepository.InsertAsync(generalLedgerDetail);
+            var result = await _dataRepository.InsertAsync(generalLedgerDetail); // db call
 
             if (result == 0)
             {
@@ -102,7 +132,7 @@ public class GeneralLedgerDetailRepository(IBaseRepository dataRepository,
     {
         try
         {
-            _loggerService.SendDebugInfo("START inserting general ledger detail");
+            _loggerService.SendDebugInfo("START updating general ledger detail");
 
             if (generalLedgerDetail == null)
             {

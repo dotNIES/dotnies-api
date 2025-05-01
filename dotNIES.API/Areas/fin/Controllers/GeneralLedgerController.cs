@@ -1,4 +1,5 @@
 ﻿using dotNIES.API.Controllers;
+using dotNIES.API.Core.Repositories.Finance;
 using dotNIES.Data.Dto.Finance;
 using dotNIES.Data.Dto.Internal;
 using dotNIES.Data.Logging.Services;
@@ -12,17 +13,53 @@ namespace dotNIES.API.Areas.fin.Controllers;
 [Authorize]
 public class GeneralLedgerController(ILoggerService loggerService,
                                      IAppInfoDto appInfoDto,
-                                     IUserAppInfoDto userAppInfoDto) : BaseController(loggerService, appInfoDto, userAppInfoDto)
+                                     IUserAppInfoDto userAppInfoDto,
+                                     IGeneralLedgerRepository generalLedgerRepository,
+                                     IGeneralLedgerDetailRepository generalLedgerDetailRepository) : BaseController(loggerService, appInfoDto, _userAppInfoDto)
 {
     private readonly ILoggerService _loggerService = loggerService;
     private readonly IUserAppInfoDto _userAppInfoDto = userAppInfoDto;
+    private readonly IGeneralLedgerRepository _generalLedgerRepository = generalLedgerRepository;
+    private readonly IGeneralLedgerDetailRepository _generalLedgerDetailRepository = generalLedgerDetailRepository;
 
-    [HttpGet("GetGeneralLedgers")]
-    public async Task<ActionResult<IEnumerable<GeneralLedgerDto>>> GetGeneralLedgers()
+    [HttpGet("GetGeneralLedger/{id}")]
+    public async Task<ActionResult<GeneralLedgerDto?>> GetGeneralLedger(int id)
     {
         try
         {
-            throw new NotImplementedException("Not implemented yet");
+            if (id < 1)
+            {
+                return BadRequest("GeneralLedgerId cannot be 0");
+            }
+
+            var result = await _generalLedgerRepository.GetGeneralLedger(id);
+
+            if (_userAppInfoDto.MinimumLogLevel is LogLevel.Debug or LogLevel.Trace)
+            {
+                _loggerService.SendDebugInfo($"Getting GeneralLedger with id {id} returned {result is not null}");
+            }
+
+            return Ok(result);
+        }
+        catch (Exception e)
+        {
+            _loggerService.SendError("An exception occurred while getting the GetGeneralLedger", e);
+            return new BadRequestResult();
+        }
+    }
+
+    [HttpGet("GetGeneralLedgers")]
+    public async Task<ActionResult<IEnumerable<GeneralLedgerDto>?>> GetGeneralLedgers()
+    {
+        try
+        {
+            var result = await _generalLedgerRepository.GetAllAsync();
+
+            if (_userAppInfoDto.MinimumLogLevel is LogLevel.Debug or LogLevel.Trace)
+            {
+                _loggerService.SendDebugInfo($"Getting all records from GeneralLedgers returned {result.Count()} records");
+            }
+            return Ok(result);
         }
         catch (Exception e)
         {
@@ -31,8 +68,48 @@ public class GeneralLedgerController(ILoggerService loggerService,
         }
     }
 
-    [HttpPost("InsertGeneralLedger")]
-    public async Task<ActionResult<int>> InsertGeneralLedger([FromBody] GeneralLedgerDto generalLedger)
+    [HttpGet("GetNotDeletedGeneralLedgers")]
+    public async Task<ActionResult<IEnumerable<GeneralLedgerDto>?>> GetNotDeletedGeneralLedgers()
+    {
+        try
+        {
+            var result = await _generalLedgerRepository.GetNotDeletedGeneralLedgersAsync();
+
+            if (_userAppInfoDto.MinimumLogLevel is LogLevel.Debug or LogLevel.Trace)
+            {
+                _loggerService.SendDebugInfo($"Getting all records from GetNotDeletedGeneralLedgers returned {result.Count()} records");
+            }
+            return Ok(result);
+        }
+        catch (Exception e)
+        {
+            _loggerService.SendError("An exception occurred while getting all records from GetNotDeletedGeneralLedgers", e);
+            return new BadRequestResult();
+        }
+    }
+
+    [HttpGet("GetDeletedGeneralLedgers")]
+    public async Task<ActionResult<IEnumerable<GeneralLedgerDto>?>> GetDeletedGeneralLedgers()
+    {
+        try
+        {
+            var result = await _generalLedgerRepository.GetDeletedGeneralLedgersAsync();
+
+            if (_userAppInfoDto.MinimumLogLevel is LogLevel.Debug or LogLevel.Trace)
+            {
+                _loggerService.SendDebugInfo($"Getting all records from GetDeletedGeneralLedgers returned {result.Count()} records");
+            }
+            return Ok(result);
+        }
+        catch (Exception e)
+        {
+            _loggerService.SendError("An exception occurred while getting all records from GetDeletedGeneralLedgers", e);
+            return new BadRequestResult();
+        }
+    }
+
+    [HttpPost("InsertGeneralLedger/{generalLedger}")]
+    public async Task<ActionResult<int>> InsertGeneralLedger(GeneralLedgerDto generalLedger)
     {
         try
         {
@@ -41,7 +118,20 @@ public class GeneralLedgerController(ILoggerService loggerService,
                 return BadRequest("GeneralLedgerDto cannot be null");
             }
 
-            throw new NotImplementedException("Not implemented yet");
+            var result = await _generalLedgerRepository.Insert(generalLedger);
+
+            if (result == 0)
+            {
+                _loggerService.SendError("An error occurred while inserting the new GeneralLedger");
+                _loggerService.SendError($"Record: {System.Text.Json.JsonSerializer.Serialize(generalLedger)}"); // we do not care if the option 'log entire record is set' we want to see the record that failed
+            }
+
+            if (_userAppInfoDto.MinimumLogLevel is LogLevel.Debug or LogLevel.Trace)
+            {
+                _loggerService.SendDebugInfo($"New GeneralLedger inserted {result > 0} with id: {result}");
+            }
+
+            return Ok(result);
         }
         catch (Exception e)
         {
@@ -50,8 +140,8 @@ public class GeneralLedgerController(ILoggerService loggerService,
         }
     }
 
-    [HttpPost("UpdategeneralLedger")]
-    public async Task<ActionResult<bool>> UpdategeneralLedger([FromBody] GeneralLedgerDto generalLedger)
+    [HttpPost("UpdateGeneralLedger/{generalLedger}")]
+    public async Task<ActionResult<bool>> UpdateGeneralLedger(GeneralLedgerDto generalLedger)
     {
         try
         {
@@ -60,7 +150,20 @@ public class GeneralLedgerController(ILoggerService loggerService,
                 return BadRequest("GeneralLedgerDto cannot be null");
             }
 
-            throw new NotImplementedException("Not implemented yet");
+            var result = await _generalLedgerRepository.Update(generalLedger);
+
+            if (!result)
+            {
+                _loggerService.SendError("An error occurred while inserting the new GeneralLedger");
+                _loggerService.SendError($"Record: {System.Text.Json.JsonSerializer.Serialize(generalLedger)}"); // we do not care if the option 'log entire record is set' we want to see the record that failed
+            }
+
+            if (_userAppInfoDto.MinimumLogLevel is LogLevel.Debug or LogLevel.Trace)
+            {
+                _loggerService.SendDebugInfo($"GeneralLedger {generalLedger.Id} updated: {result}");
+            }
+
+            return Ok(result);
         }
         catch (Exception e)
         {
@@ -69,8 +172,8 @@ public class GeneralLedgerController(ILoggerService loggerService,
         }
     }
 
-    [HttpPost("DeletegeneralLedger")]
-    public async Task<ActionResult<bool>> DeletegeneralLedger([FromBody] int generalLedgerId)
+    [HttpPost("DeleteGeneralLedger/{generalLegerId}")]
+    public async Task<ActionResult<bool>> DeleteGeneralLedger(int generalLedgerId)
     {
         try
         {
@@ -79,7 +182,48 @@ public class GeneralLedgerController(ILoggerService loggerService,
                 return BadRequest("GeneralLedgerId cannot be 0");
             }
 
-            throw new NotImplementedException("Not implemented yet");
+            var generalLedger = await _generalLedgerRepository.GetGeneralLedger(generalLedgerId);
+            
+            if (generalLedger == null)
+            {
+                return BadRequest("GeneralLedgerDto not found");
+            }
+
+            // delete the details first
+            var generalLedgerDetails = await _generalLedgerDetailRepository.GetGeneralLedgerDetailsForGL(generalLedgerId);
+
+            if (generalLedgerDetails != null && generalLedgerDetails.Count() > 0)
+            {
+                _loggerService.SendInformation($"Deleting {generalLedgerDetails.Count()} GeneralLedgerDetails for GeneralLedger {generalLedgerId}");
+
+                var deleteResultGLD = true;
+
+                foreach (var generalLedgerDetail in generalLedgerDetails)
+                {
+                    deleteResultGLD = await _generalLedgerDetailRepository.Delete(generalLedgerDetail);
+
+                    if (!deleteResultGLD)
+                    {
+                        _loggerService.SendError("An error occurred while deleting the GeneralLedgerDetail");
+                    }
+                }
+            }
+
+            // delete the general ledger
+            var result = await _generalLedgerRepository.Delete(generalLedger);
+
+            if (!result)
+            {
+                _loggerService.SendError("An error occurred while inserting the new GeneralLedger");
+                _loggerService.SendError($"Record: {System.Text.Json.JsonSerializer.Serialize(generalLedger)}"); // we do not care if the option 'log entire record is set' we want to see the record that failed
+            }
+
+            if (_userAppInfoDto.MinimumLogLevel is LogLevel.Debug or LogLevel.Trace)
+            {
+                _loggerService.SendDebugInfo($"New GeneralLedger inserted {result}");
+            }
+
+            return Ok(result);
         }
         catch (Exception e)
         {

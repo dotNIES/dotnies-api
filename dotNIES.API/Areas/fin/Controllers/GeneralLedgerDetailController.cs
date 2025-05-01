@@ -1,4 +1,5 @@
 ﻿using dotNIES.API.Controllers;
+using dotNIES.API.Core.Repositories.Finance;
 using dotNIES.Data.Dto.Finance;
 using dotNIES.Data.Dto.Internal;
 using dotNIES.Data.Logging.Services;
@@ -13,10 +14,11 @@ namespace dotNIES.API.Areas.fin.Controllers;
 [Authorize]
 public class GeneralLedgerDetailController(ILoggerService loggerService,
                                            IAppInfoDto appInfoDto,
-                                           IUserAppInfoDto userAppInfoDto) : BaseController(loggerService, appInfoDto, userAppInfoDto)
+                                           IUserAppInfoDto userAppInfoDto,
+                                           IGeneralLedgerDetailRepository generalLedgerDetailRepository) : BaseController(loggerService, appInfoDto, userAppInfoDto)
 {
     private readonly ILoggerService _loggerService = loggerService;
-    private readonly IUserAppInfoDto _userAppInfoDto = userAppInfoDto;
+    private readonly IGeneralLedgerDetailRepository _generalLedgerDetailRepository = generalLedgerDetailRepository;
 
     [HttpGet("GetGeneralLedgerDetails")]
     public async Task<ActionResult<IEnumerable<GeneralLedgerDetailDto>>> GetGeneralLedgerDetails([FromBody] int generalLedgerId)
