@@ -31,6 +31,17 @@ public class LoggerService : ILoggerService
         RegisterMessages();
     }
 
+    [Obsolete("Do not use this method anymore", true)]
+    public Guid GetUserLoggerId() => _userLoggerInfoModel.UserLoggerInfoId;
+
+    public void SendDebugInfo(string message, Exception? exception = null) => Send(LogLevel.Information, message, exception);
+
+    public void SendInformation(string message, Exception? exception = null) => Send(LogLevel.Information, message, exception);
+
+    public void SendWarning(string message, Exception? exception = null) => Send(LogLevel.Warning, message, exception);
+
+    public void SendError(string message, Exception? exception = null) => Send(LogLevel.Error, message, exception);
+
     private void InitializeSerilog()
     {
         var configuration = new ConfigurationBuilder()
@@ -147,9 +158,15 @@ public class LoggerService : ILoggerService
         });
     }
 
-    public Guid GetUserLoggerId()
+    private void Send(LogLevel level, string message, Exception? exception)
     {
-        var result = _userLoggerInfoModel.UserLoggerInfoId;
-        return result;
+        var logMessage = new LogMessageModel
+        {
+            LogLevel = level,
+            Message = message,
+            Exception = exception
+        };
+
+        WeakReferenceMessenger.Default.Send(logMessage);
     }
 }

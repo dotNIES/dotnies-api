@@ -1,4 +1,6 @@
 ﻿
+using Microsoft.Extensions.Logging;
+
 namespace dotNIES.Data.Dto.Internal;
 
 public interface IUserAppInfoDto
@@ -10,4 +12,5 @@ public interface IUserAppInfoDto
     Guid UserLoggerInfoId { get; set; }
     string? UserName { get; set; }
     string? WindowsUserName { get; set; }
+    LogLevel MinimumLogLevel { get; set; }
 }
