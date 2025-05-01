@@ -7,11 +7,25 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Remove="Areas\common\Models\**" />
+    <Content Remove="Areas\common\Models\**" />
+    <EmbeddedResource Remove="Areas\common\Models\**" />
+    <None Remove="Areas\common\Models\**" />
+  </ItemGroup>
+
+  <ItemGroup>
     <PackageReference Include="CommunityToolkit.Mvvm" />
-    <PackageReference Include="dotNIES.Data.Logging" />
+    <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" />
+    <PackageReference Include="Microsoft.VisualStudio.Web.CodeGeneration.Design" />
     <PackageReference Include="Swashbuckle.AspNetCore" />
     <PackageReference Include="Swashbuckle.AspNetCore.Swagger" />
     <PackageReference Include="Swashbuckle.AspNetCore.SwaggerGen" />
     <PackageReference Include="Swashbuckle.AspNetCore.SwaggerUI" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\dotNIES.Data\dotNIES.Data.Dto\dotNIES.Data.Dto.csproj" />
+    <ProjectReference Include="..\..\dotNIES.Data\dotNIES.Data.Logging\dotNIES.Data.Logging.csproj" />
+    <ProjectReference Include="..\dotNIES.API.Core\dotNIES.API.Core.csproj" />
   </ItemGroup>
 </Project>

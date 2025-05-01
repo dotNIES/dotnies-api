@@ -10,7 +10,9 @@
     <PackageVersion Include="Dapper.Contrib" Version="2.0.78" />
     <PackageVersion Include="Dapper.Database" Version="5.0.0.258" />
     <PackageVersion Include="dotNIES.Data.Logging" Version="1.0.0" />
+    <PackageVersion Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="9.0.4" />
     <PackageVersion Include="Microsoft.Data.SqlClient" Version="5.2.2" />
+    <PackageVersion Include="Microsoft.VisualStudio.Web.CodeGeneration.Design" Version="9.0.0" />
     <PackageVersion Include="Swashbuckle.AspNetCore" Version="8.1.1" />
     <PackageVersion Include="Swashbuckle.AspNetCore.Swagger" Version="8.1.1" />
     <PackageVersion Include="Swashbuckle.AspNetCore.SwaggerGen" Version="8.1.1" />
