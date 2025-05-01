@@ -7,6 +7,7 @@
     [LastModifiedBy]    NVARCHAR(128)       DEFAULT (USER_NAME())NOT NULL,
     [IsActive]          BIT                 DEFAULT ((1)) NOT NULL,
     [IsDeleted]         BIT                 DEFAULT ((0)) NOT NULL,
+    [DeletedOn]         DATETIME2 (7)       NULL,
     [VendorTypeId]      INT                 NOT NULL,
     [CategoryId]        INT                 NOT NULL,
     [Name]              NVARCHAR(100)       NOT NULL,

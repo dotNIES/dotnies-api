@@ -7,6 +7,7 @@
     [LastModifiedBy]    NVARCHAR(128)       DEFAULT (USER_NAME())NOT NULL,
     [GeneralLedgerId]   INT                 NOT NULL,
     [IsDeleted]         BIT                 DEFAULT (0) NOT NULL,
+    [DeletedOn]         DATETIME2 (7)       NULL,
     [PurchaseTypeId]    INT                 NOT NULL,
     [CategoryId]        INT                 NOT NULL,
     [EntryDate]         DATETIME2 (7)       NOT NULL,
