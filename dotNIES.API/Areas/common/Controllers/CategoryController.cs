@@ -1,73 +1,75 @@
 ﻿using dotNIES.API.Controllers;
 using dotNIES.API.Core.Repositories;
+using dotNIES.API.Core.Repositories.Common;
+using dotNIES.API.Core.Repositories.Internal;
 using dotNIES.Data.Dto.Common;
-using dotNIES.Data.Dto.Finance;
 using dotNIES.Data.Dto.Internal;
 using dotNIES.Data.Logging.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
-namespace dotNIES.API.Areas.fin.Controllers;
+namespace dotNIES.API.Areas.common.Controllers;
 
-[Area("fin")]
+[Area("common")]
 [Route("api/[area]/[controller]")]
 [ApiController]
 [Authorize]
-public class VendorController : BaseController
+public class CategoryController : BaseController
 {
     private readonly ILoggerService _loggerService;
     private readonly IAppInfoDto _appInfoDto;
     private readonly IUserAppInfoDto _userAppInfoDto;
-    private readonly IVendorRepository _vendorRepository;
+    private readonly ICategoryRepository _categoryRepository;
 
-    public VendorController(ILoggerService loggerService,
+    public CategoryController(ILoggerService loggerService,
                               IAppInfoDto appInfoDto,
                               IUserAppInfoDto userAppInfoDto,
-                              IVendorRepository vendorRepository) : base(loggerService, appInfoDto, userAppInfoDto)
+                              ICategoryRepository categoryRepository) : base(loggerService, appInfoDto, userAppInfoDto)
     {
         _loggerService = loggerService;
         _appInfoDto = appInfoDto;
         _userAppInfoDto = userAppInfoDto;
-        _vendorRepository = vendorRepository;
+        _categoryRepository = categoryRepository;
     }
 
     [HttpGet("GetAll")]
-    public async Task<ActionResult<IEnumerable<VendorDto>>> GetAll()
+    public async Task<ActionResult<IEnumerable<CategoryDto>>> GetAll()
     {
         try
         {
-            var result = await _vendorRepository.GetAllAsync();
+            var result = await _categoryRepository.GetAllAsync();
 
             if (_userAppInfoDto.MinimumLogLevel is LogLevel.Debug or LogLevel.Trace)
             {
-                _loggerService.SendDebugInfo($"Getting all records from Vendor returned {result.Count()} records");
+                _loggerService.SendDebugInfo($"Getting all records from Category returned {result.Count()} records");
             }
+
             return Ok(result);
         }
         catch (Exception e)
         {
-            _loggerService.SendError("An exception occurred while getting all records from Vendor", e);
+            _loggerService.SendError("An exception occurred while getting all records from Category", e);
             return new BadRequestResult();
         }
     }
 
-    [HttpGet("GetActiveVendors")]
-    public async Task<ActionResult<IEnumerable<VendorDto>>> GetActiveVendors()
+    [HttpGet("GetActiveCategories")]
+    public async Task<ActionResult<IEnumerable<CategoryDto>>> GetActiveCategories()
     {
         try
         {
-            var result = await _vendorRepository.GetActiveVendorsAsync();
+            var result = await _categoryRepository.GetActiveCategoriesAsync();
 
             if (_userAppInfoDto.MinimumLogLevel == LogLevel.Debug || _userAppInfoDto.MinimumLogLevel == LogLevel.Trace)
             {
-                _loggerService.SendDebugInfo($"Getting all records from Vendor returned {result.Count()} records");
+                _loggerService.SendDebugInfo($"Getting all records from Category returned {result.Count()} records");
             }
 
             return Ok(result);
         }
         catch (Exception e)
         {
-            _loggerService.SendError($"An exception occurred while getting all records from Vendor", e);
+            _loggerService.SendError($"An exception occurred while getting all records from Category", e);
             return new BadRequestResult();
         }
     }
