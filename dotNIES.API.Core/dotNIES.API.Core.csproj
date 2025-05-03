@@ -11,11 +11,16 @@
     <PackageReference Include="Dapper.Contrib" />
     <PackageReference Include="Dapper.Database" />
     <PackageReference Include="Microsoft.Data.SqlClient" />
+    <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" />
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\dotNIES.Data\dotNIES.Data.Dto\dotNIES.Data.Dto.csproj" />
-    <ProjectReference Include="..\..\dotNIES.Data\dotNIES.Data.Logging\dotNIES.Data.Logging.csproj" />
+    <Reference Include="dotNIES.Data.Dto">
+      <HintPath>..\..\Packages\dotNIES\dotNIES.Data.Dto.dll</HintPath>
+    </Reference>
+    <Reference Include="dotNIES.Data.Logging">
+      <HintPath>..\..\Packages\dotNIES\dotNIES.Data.Logging.dll</HintPath>
+    </Reference>
   </ItemGroup>
 
 </Project>

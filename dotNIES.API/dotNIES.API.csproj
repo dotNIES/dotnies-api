@@ -14,6 +14,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <PackageReference Include="CommunityToolkit.Common" />
     <PackageReference Include="CommunityToolkit.Mvvm" />
     <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" />
     <PackageReference Include="Microsoft.VisualStudio.Web.CodeGeneration.Design" />
@@ -21,11 +22,19 @@
     <PackageReference Include="Swashbuckle.AspNetCore.Swagger" />
     <PackageReference Include="Swashbuckle.AspNetCore.SwaggerGen" />
     <PackageReference Include="Swashbuckle.AspNetCore.SwaggerUI" />
+    <PackageReference Include="System.Text.Json" />
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\dotNIES.Data\dotNIES.Data.Dto\dotNIES.Data.Dto.csproj" />
-    <ProjectReference Include="..\..\dotNIES.Data\dotNIES.Data.Logging\dotNIES.Data.Logging.csproj" />
     <ProjectReference Include="..\dotNIES.API.Core\dotNIES.API.Core.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Reference Include="dotNIES.Data.Dto">
+      <HintPath>..\..\Packages\dotNIES\dotNIES.Data.Dto.dll</HintPath>
+    </Reference>
+    <Reference Include="dotNIES.Data.Logging">
+      <HintPath>..\..\Packages\dotNIES\dotNIES.Data.Logging.dll</HintPath>
+    </Reference>
   </ItemGroup>
 </Project>

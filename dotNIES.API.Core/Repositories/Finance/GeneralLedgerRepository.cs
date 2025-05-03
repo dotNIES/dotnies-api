@@ -2,7 +2,6 @@
 using dotNIES.Data.Dto.Finance;
 using dotNIES.Data.Dto.Internal;
 using dotNIES.Data.Logging.Services;
-using Microsoft.Extensions.Logging;
 using System.Data;
 
 namespace dotNIES.API.Core.Repositories.Finance;
