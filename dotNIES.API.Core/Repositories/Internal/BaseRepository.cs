@@ -1,5 +1,4 @@
-﻿using CommunityToolkit.Mvvm.Messaging;
-using Dapper;
+﻿using Dapper;
 using Dapper.Database.Extensions;
 using dotNIES.API.Core.Helpers;
 using dotNIES.Data.Dto.Internal;
@@ -40,27 +39,14 @@ public class BaseRepository : IBaseRepository
         // Log the SQL statement if logging is enabled
         if (_userAppInfoDto.LogSqlStatements)
         {
-            logMessage = new LogMessageModel
-            {
-                Message = $"Executing base SQL Statement GetAll for table: {tableName}",
-                LogLevel = LogLevel.Debug,
-            };
-            WeakReferenceMessenger.Default.Send(logMessage);
+            _loggerService.SendInformation($"Executing base SQL Statement GetAll for table: {tableName}");
         }
 
         using IDbConnection connection = new SqlConnection(_appInfoDto.ConnectionString);
         var result = await connection.QueryAsync<T>($"SELECT * FROM {tableName}");
 
         // Log the outcome if logging is enabled with debug or trace level
-        if (_userAppInfoDto.MinimumLogLevel == LogLevel.Debug || _userAppInfoDto.MinimumLogLevel == LogLevel.Trace)
-        {
-            logMessage = new LogMessageModel
-            {
-                Message = $"Executing base SQL Statement GetAll for table: {tableName} returned {result.Count()} records",
-                LogLevel = LogLevel.Debug,
-            };
-            WeakReferenceMessenger.Default.Send(logMessage);
-        }
+        _loggerService.SendDebugInfo($"Executing base SQL Statement GetAll for table: {tableName} returned {result.Count()} records");
 
         return result;
     }
@@ -77,27 +63,14 @@ public class BaseRepository : IBaseRepository
         // Log the SQL statement if logging is enabled
         if (_userAppInfoDto.LogSqlStatements)
         {
-            logMessage = new LogMessageModel
-            {
-                Message = $"Executing base SQL Statement GetAll for table: {tableName}",
-                LogLevel = LogLevel.Debug,
-            };
-            WeakReferenceMessenger.Default.Send(logMessage);
+            _loggerService.SendInformation($"Executing base SQL Statement GetAll for table: {tableName} and schema: {schemaName}");
         }
 
         using IDbConnection connection = new SqlConnection(_appInfoDto.ConnectionString);
         var result = await connection.QueryAsync<T>($"SELECT * FROM {schemaName}.{tableName}");
 
         // Log the outcome if logging is enabled with debug or trace level
-        if (_userAppInfoDto.MinimumLogLevel == LogLevel.Debug || _userAppInfoDto.MinimumLogLevel == LogLevel.Trace)
-        {
-            logMessage = new LogMessageModel
-            {
-                Message = $"Executing base SQL Statement GetAll for table: {tableName} and schame: {schemaName} returned {result.Count()} records",
-                LogLevel = LogLevel.Debug,
-            };
-            WeakReferenceMessenger.Default.Send(logMessage);
-        }
+        _loggerService.SendDebugInfo($"Executing base SQL Statement GetAll for table: {tableName} and schema: {schemaName} returned {result.Count()} records");
 
         return result;
     }
@@ -112,12 +85,7 @@ public class BaseRepository : IBaseRepository
         // Log the SQL statement if logging is enabled
         if (_userAppInfoDto.LogSqlStatements)
         {
-            logMessage = new LogMessageModel
-            {
-                Message = $"Executing SQL Statement: {SqlFormatter.SimplifySpaces(sqlStatement)}",
-                LogLevel = LogLevel.Information,
-            };
-            WeakReferenceMessenger.Default.Send(logMessage);
+            _loggerService.SendInformation($"Executing SQL Statement: {SqlFormatter.SimplifySpaces(sqlStatement)}");
         }
 
         // ACTUAL DATABASE CALL
@@ -126,15 +94,7 @@ public class BaseRepository : IBaseRepository
         var result = await connection.QueryAsync<T>(sqlStatement);
 
         // Log the outcome if logging is enabled with debug or trace level
-        if (_userAppInfoDto.MinimumLogLevel == LogLevel.Debug || _userAppInfoDto.MinimumLogLevel == LogLevel.Trace)
-        {
-            logMessage = new LogMessageModel
-            {
-                Message = $"Executing base SQL Statement GetAll with sql statement {sqlStatement} returned {result.Count()} records",
-                LogLevel = LogLevel.Debug,
-            };
-            WeakReferenceMessenger.Default.Send(logMessage);
-        }
+        _loggerService.SendDebugInfo($"Executing base SQL Statement GetAll with sql statement {sqlStatement} returned {result.Count()} records");
 
         return result;
     }
@@ -146,12 +106,7 @@ public class BaseRepository : IBaseRepository
         // Log the SQL statement if logging is enabled
         if (_userAppInfoDto.LogSqlStatements)
         {
-            logMessage = new LogMessageModel
-            {
-                Message = $"Executing SQL Statement: {SqlFormatter.SimplifySpaces(sqlStatement)}",
-                LogLevel = LogLevel.Information,
-            };
-            WeakReferenceMessenger.Default.Send(logMessage);
+            _loggerService.SendInformation($"Executing SQL Statement: {SqlFormatter.SimplifySpaces(sqlStatement)}");
         }
 
         // ACTUAL DATABASE CALL
@@ -160,15 +115,7 @@ public class BaseRepository : IBaseRepository
         var result = await connection.QuerySingleOrDefaultAsync<T>(sqlStatement);
 
         // Log the outcome if logging is enabled with debug or trace level
-        if (_userAppInfoDto.MinimumLogLevel == LogLevel.Debug || _userAppInfoDto.MinimumLogLevel == LogLevel.Trace)
-        {
-            logMessage = new LogMessageModel
-            {
-                Message = $"Executing base SQL Statement {sqlStatement} returned the record {result is not null}",
-                LogLevel = LogLevel.Debug,
-            };
-            WeakReferenceMessenger.Default.Send(logMessage);
-        }
+        _loggerService.SendDebugInfo($"Executing base SQL Statement GetAll with sql statement {sqlStatement} returned the record {result is not null}");
 
         return result;
     }
@@ -189,12 +136,7 @@ public class BaseRepository : IBaseRepository
             // Log the SQL statement if logging is enabled
             if (_userAppInfoDto.LogSqlStatements)
             {
-                logMessage = new LogMessageModel
-                {
-                    Message = $"Executing Insert statement for {model?.GetType()}",
-                    LogLevel = LogLevel.Debug,
-                };
-                WeakReferenceMessenger.Default.Send(logMessage);
+                _loggerService.SendInformation($"Executing Insert statement for {model?.GetType()}");
             }
 
             // ACTUAL DATABASE CALL
@@ -206,23 +148,13 @@ public class BaseRepository : IBaseRepository
             {
                 // Log the entire record as JSON String
                 var recordAsJson = System.Text.Json.JsonSerializer.Serialize(model);
-                logMessage = new LogMessageModel
-                {
-                    Message = $"Record: {recordAsJson}",
-                    LogLevel = LogLevel.Debug,
-                };
-                WeakReferenceMessenger.Default.Send(logMessage);
+                _loggerService.SendInformation($"Record: {recordAsJson}");
             }
 
             if (!result)
             {
                 // Log the insert as NOT successful (if exception occurs then it will be caught in the catch block in the caller)
-                logMessage = new LogMessageModel
-                {
-                    Message = "Insert statement not successfully executed, record not inserted.",
-                    LogLevel = LogLevel.Error,
-                };
-                WeakReferenceMessenger.Default.Send(logMessage);
+                _loggerService.SendError("Insert statement not successfully executed, record not inserted.");
 
                 return 0;
             }
@@ -231,12 +163,7 @@ public class BaseRepository : IBaseRepository
                 if (guidProperty.GetValue(model) is int id)
                 {
                     // Log the insert as successful (if error then it will be caught in the catch block in the caller)
-                    logMessage = new LogMessageModel
-                    {
-                        Message = $"Insert statement executed successfully, record inserted with id {id}.",
-                        LogLevel = LogLevel.Debug,
-                    };
-                    WeakReferenceMessenger.Default.Send(logMessage);
+                    _loggerService.SendInformation($"Insert statement executed successfully, record inserted with id {id}.");
 
                     return id;
                 }
@@ -267,15 +194,7 @@ public class BaseRepository : IBaseRepository
         if (guidProperty != null && guidProperty.PropertyType == typeof(Guid))
         {
             // Log the SQL statement if logging is enabled
-            if (_userAppInfoDto.LogSqlStatements)
-            {
-                logMessage = new LogMessageModel
-                {
-                    Message = $"Executing Insert statement for {model?.GetType()}",
-                    LogLevel = LogLevel.Debug,
-                };
-                WeakReferenceMessenger.Default.Send(logMessage);
-            }
+            _loggerService.SendInformation($"Executing Insert statement for {model?.GetType()}");
 
             // prepare new guid
             var newGuid = new Guid();
@@ -299,23 +218,13 @@ public class BaseRepository : IBaseRepository
             {
                 // Log the entire record as JSON String
                 var recordAsJson = System.Text.Json.JsonSerializer.Serialize(model);
-                logMessage = new LogMessageModel
-                {
-                    Message = $"Record: {recordAsJson}",
-                    LogLevel = LogLevel.Debug,
-                };
-                WeakReferenceMessenger.Default.Send(logMessage);
+                _loggerService.SendInformation($"Record: {recordAsJson}");
             }
 
             if (!result)
             {
                 // Log the insert as NOT successful (if exception occurs then it will be caught in the catch block in the caller)
-                logMessage = new LogMessageModel
-                {
-                    Message = "Insert statement not successfully executed, record not inserted.",
-                    LogLevel = LogLevel.Error,
-                };
-                WeakReferenceMessenger.Default.Send(logMessage);
+                _loggerService.SendError("Insert statement not successfully executed, record not inserted.");
 
                 return Guid.Empty;
             }
@@ -324,12 +233,7 @@ public class BaseRepository : IBaseRepository
                 if (guidProperty.GetValue(model) is Guid id)
                 {
                     // Log the insert as successful (if error then it will be caught in the catch block in the caller)
-                    logMessage = new LogMessageModel
-                    {
-                        Message = $"Insert statement executed successfully, record inserted with id {id}.",
-                        LogLevel = LogLevel.Debug,
-                    };
-                    WeakReferenceMessenger.Default.Send(logMessage);
+                    _loggerService.SendInformation($"Insert statement executed successfully, record inserted with id {id}.");
 
                     return id;
                 }
@@ -358,12 +262,7 @@ public class BaseRepository : IBaseRepository
         // Log the SQL statement if logging is enabled
         if (_userAppInfoDto.LogSqlStatements)
         {
-            logMessage = new LogMessageModel
-            {
-                Message = $"Executing update statement for {model?.GetType()}",
-                LogLevel = LogLevel.Debug,
-            };
-            WeakReferenceMessenger.Default.Send(logMessage);
+            _loggerService.SendInformation($"Executing update statement for {model?.GetType()}");
         }
 
 
@@ -375,12 +274,7 @@ public class BaseRepository : IBaseRepository
         {
             // Log the entire record as JSON String
             var recordAsJson = System.Text.Json.JsonSerializer.Serialize(model);
-            logMessage = new LogMessageModel
-            {
-                Message = $"Record: {recordAsJson}",
-                LogLevel = LogLevel.Debug,
-            };
-            WeakReferenceMessenger.Default.Send(logMessage);
+            _loggerService.SendInformation($"Record: {recordAsJson}");
         }
 
         return result;
@@ -398,24 +292,14 @@ public class BaseRepository : IBaseRepository
         // Log the SQL statement if logging is enabled
         if (_userAppInfoDto.LogSqlStatements)
         {
-            logMessage = new LogMessageModel
-            {
-                Message = $"Executing delete statement for {model?.GetType()}",
-                LogLevel = LogLevel.Debug,
-            };
-            WeakReferenceMessenger.Default.Send(logMessage);
+            _loggerService.SendInformation($"Executing delete statement for {model?.GetType()}");
         }
 
         if (_userAppInfoDto.LogEntireRecord)
         {
             // Log the entire record as JSON String
             var recordAsJson = System.Text.Json.JsonSerializer.Serialize(model);
-            logMessage = new LogMessageModel
-            {
-                Message = $"Record: {recordAsJson}",
-                LogLevel = LogLevel.Debug,
-            };
-            WeakReferenceMessenger.Default.Send(logMessage);
+            _loggerService.SendInformation($"Record: {recordAsJson}");
         }
 
 
@@ -428,33 +312,18 @@ public class BaseRepository : IBaseRepository
 
             if (!result)
             {
-                logMessage = new LogMessageModel
-                {
-                    Message = $"The record {model?.GetType()} is NOT deleted!",
-                    LogLevel = LogLevel.Error,
-                };
-                WeakReferenceMessenger.Default.Send(logMessage);
+                _loggerService.SendError("Delete statement not successfully executed, record not deleted.");
             }
             else
             {
-                logMessage = new LogMessageModel
-                {
-                    Message = $"The record {model?.GetType()} was successfully deleted",
-                    LogLevel = LogLevel.Information,
-                };
-                WeakReferenceMessenger.Default.Send(logMessage);
+                _loggerService.SendInformation($"Delete statement executed successfully, record deleted.");
             }
 
             return result;
         }
         catch (SqlException sqlE) when (sqlE.Message.Contains("REFERENCE constraint"))
         {
-            logMessage = new LogMessageModel
-            {
-                Message = $"The record {model?.GetType()} has references to other records and cannot be deleted. A softdelete was issued instead.",
-                LogLevel = LogLevel.Error,
-            };
-            WeakReferenceMessenger.Default.Send(logMessage);
+            _loggerService.SendError("Delete statement not successfully executed, record has references to other records and cannot be deleted. A softdelete was issued instead.", sqlE);
 
             var result = await SoftDeleteRecordAsync(model);
             return result;
@@ -478,24 +347,14 @@ public class BaseRepository : IBaseRepository
         // Log the SQL statement if logging is enabled
         if (_userAppInfoDto.LogSqlStatements)
         {
-            logMessage = new LogMessageModel
-            {
-                Message = $"Executing delete statement for {model?.GetType()}",
-                LogLevel = LogLevel.Debug,
-            };
-            WeakReferenceMessenger.Default.Send(logMessage);
+            _loggerService.SendInformation($"Executing delete statement for {model?.GetType()}");
         }
 
         if (_userAppInfoDto.LogEntireRecord)
         {
             // Log the entire record as JSON String
             var recordAsJson = System.Text.Json.JsonSerializer.Serialize(model);
-            logMessage = new LogMessageModel
-            {
-                Message = $"Record: {recordAsJson}",
-                LogLevel = LogLevel.Debug,
-            };
-            WeakReferenceMessenger.Default.Send(logMessage);
+            _loggerService.SendInformation($"Record: {recordAsJson}");
         }
 
 
@@ -527,12 +386,7 @@ public class BaseRepository : IBaseRepository
 
         if (!propertyIsActiveChanged || !propertyIsDeletedChanged)
         {
-            logMessage = new LogMessageModel
-            {
-                Message = $"The record {model?.GetType()} cannot be soft-deleted because neither IsActive nor IsDeleted exists in the table",
-                LogLevel = LogLevel.Error,
-            };
-            WeakReferenceMessenger.Default.Send(logMessage);
+            _loggerService.SendError($"The record {model?.GetType()} cannot be soft-deleted because neither IsActive nor IsDeleted exists in the table");
 
             return false;
         }
@@ -544,21 +398,11 @@ public class BaseRepository : IBaseRepository
 
         if (!result)
         {
-            logMessage = new LogMessageModel
-            {
-                Message = $"The record {model?.GetType()} is NOT updated for softdelete!",
-                LogLevel = LogLevel.Error,
-            };
-            WeakReferenceMessenger.Default.Send(logMessage);
+            _loggerService.SendError($"The record {model?.GetType()} is NOT updated for softdelete!");
         }
         else
         {
-            logMessage = new LogMessageModel
-            {
-                Message = $"The record {model?.GetType()} was successfully soft deleted",
-                LogLevel = LogLevel.Information,
-            };
-            WeakReferenceMessenger.Default.Send(logMessage);
+            _loggerService.SendInformation($"The record {model?.GetType()} was successfully soft deleted");
         }
 
         return result;
@@ -610,33 +454,18 @@ public class BaseRepository : IBaseRepository
 
             if (!result)
             {
-                logMessage = new LogMessageModel
-                {
-                    Message = $"The record {model?.GetType()} is NOT deleted!",
-                    LogLevel = LogLevel.Error,
-                };
-                WeakReferenceMessenger.Default.Send(logMessage);
+                _loggerService.SendError($"The record {model?.GetType()} is NOT deleted!");
             }
             else
             {
-                logMessage = new LogMessageModel
-                {
-                    Message = $"The record {model?.GetType()} was successfully deleted",
-                    LogLevel = LogLevel.Information,
-                };
-                WeakReferenceMessenger.Default.Send(logMessage);
+                _loggerService.SendInformation($"The record {model?.GetType()} was successfully deleted");
             }
 
             return result;
         }
         catch (SqlException sqlE) when (sqlE.Message.Contains("REFERENCE constraint"))
         {
-            logMessage = new LogMessageModel
-            {
-                Message = $"The record {model?.GetType()} has references to other records and cannot be deleted. A softdelete was issued instead.",
-                LogLevel = LogLevel.Error,
-            };
-            WeakReferenceMessenger.Default.Send(logMessage);
+            _loggerService.SendError($"The record {model?.GetType()} is NOT deleted because it has references to other records!", sqlE);
             return false;
         }
     }
@@ -658,24 +487,14 @@ public class BaseRepository : IBaseRepository
         // Log the SQL statement if logging is enabled
         if (_userAppInfoDto.LogSqlStatements)
         {
-            logMessage = new LogMessageModel
-            {
-                Message = $"Executing delete statement for {model?.GetType()}",
-                LogLevel = LogLevel.Debug,
-            };
-            WeakReferenceMessenger.Default.Send(logMessage);
+            _loggerService.SendDebugInfo($"Executing delete statement for {model?.GetType()}");
         }
 
         if (_userAppInfoDto.LogEntireRecord)
         {
             // Log the entire record as JSON String
             var recordAsJson = System.Text.Json.JsonSerializer.Serialize(model);
-            logMessage = new LogMessageModel
-            {
-                Message = $"Record: {recordAsJson}",
-                LogLevel = LogLevel.Debug,
-            };
-            WeakReferenceMessenger.Default.Send(logMessage);
+            _loggerService.SendDebugInfo($"Record: {recordAsJson}");
         }
 
 
@@ -707,12 +526,7 @@ public class BaseRepository : IBaseRepository
 
         if (!propertyIsActiveChanged || !propertyIsDeletedChanged)
         {
-            logMessage = new LogMessageModel
-            {
-                Message = $"The record {model?.GetType()} cannot be soft-deleted because neither IsActive nor IsDeleted exists in the table",
-                LogLevel = LogLevel.Error,
-            };
-            WeakReferenceMessenger.Default.Send(logMessage);
+            _loggerService.SendError($"The record {model?.GetType()} cannot be soft-deleted because neither IsActive nor IsDeleted exists in the table");
 
             return false;
         }
@@ -725,21 +539,11 @@ public class BaseRepository : IBaseRepository
 
         if (!result)
         {
-            logMessage = new LogMessageModel
-            {
-                Message = $"The record {model?.GetType()} is NOT updated for softdelete!",
-                LogLevel = LogLevel.Error,
-            };
-            WeakReferenceMessenger.Default.Send(logMessage);
+            _loggerService.SendError($"The record {model?.GetType()} is NOT updated for softdelete!");
         }
         else
         {
-            logMessage = new LogMessageModel
-            {
-                Message = $"The record {model?.GetType()} was successfully soft deleted",
-                LogLevel = LogLevel.Information,
-            };
-            WeakReferenceMessenger.Default.Send(logMessage);
+            _loggerService.SendInformation($"The record {model?.GetType()} was successfully soft deleted");
         }
 
         return result;
