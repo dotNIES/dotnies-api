@@ -14,13 +14,14 @@
   </ItemGroup>
 
   <ItemGroup>
+    <PackageReference Include="CommunityToolkit.Common" />
     <PackageReference Include="CommunityToolkit.Mvvm" />
     <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" />
-    <PackageReference Include="Microsoft.VisualStudio.Web.CodeGeneration.Design" />
     <PackageReference Include="Swashbuckle.AspNetCore" />
     <PackageReference Include="Swashbuckle.AspNetCore.Swagger" />
     <PackageReference Include="Swashbuckle.AspNetCore.SwaggerGen" />
     <PackageReference Include="Swashbuckle.AspNetCore.SwaggerUI" />
+    <PackageReference Include="System.Text.Json" />
   </ItemGroup>
 
   <ItemGroup>

@@ -4,9 +4,7 @@ using dotNIES.Data.Dto.Finance;
 using dotNIES.Data.Dto.Internal;
 using dotNIES.Data.Logging.Services;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.CodeAnalysis.FlowAnalysis.DataFlow;
 
 namespace dotNIES.API.Areas.fin.Controllers;
 [Route("api/[controller]")]
