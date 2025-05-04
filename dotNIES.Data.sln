@@ -13,6 +13,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "dotNIES.Data.Logging", "dotNIES.Data.Logging\dotNIES.Data.Logging.csproj", "{DE9C4A74-09B3-6404-08E8-5A3B4C33663D}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "dotNIES.Data.Dto", "dotNIES.Data.Dto\dotNIES.Data.Dto.csproj", "{9F75DB0F-88FF-F271-53C7-5146216EE91F}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -29,6 +31,10 @@ Global
 		{DE9C4A74-09B3-6404-08E8-5A3B4C33663D}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{DE9C4A74-09B3-6404-08E8-5A3B4C33663D}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{DE9C4A74-09B3-6404-08E8-5A3B4C33663D}.Release|Any CPU.Build.0 = Release|Any CPU
+		{9F75DB0F-88FF-F271-53C7-5146216EE91F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{9F75DB0F-88FF-F271-53C7-5146216EE91F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{9F75DB0F-88FF-F271-53C7-5146216EE91F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{9F75DB0F-88FF-F271-53C7-5146216EE91F}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
