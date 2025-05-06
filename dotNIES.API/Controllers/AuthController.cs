@@ -38,10 +38,11 @@ public class AuthController : BaseController
         if (isValid)
         {
             var token = GenerateJwtToken(login.Username);
+            var refreshToken = GenerateRefreshToken(login.Username);
 
             _loggerService.SendInformation($"Login attempt SUCCEEDED for username {login.Username}");
 
-            return Ok(new { token });
+            return Ok(new { token, refreshToken });
         }
 
         _loggerService.SendInformation($"Login attempt FAILED for username {login.Username}");
@@ -51,9 +52,6 @@ public class AuthController : BaseController
 
     private async Task<bool> IsValidUser(LoginModel login)
     {
-        // TODO: db validatie
-        //return login.Username == "gebruiker" && login.Password == "wachtwoord";
-
         // UserManager is de standaard manier om gebruikers te beheren in ASP.NET Identity
         var user = await _userManager.FindByNameAsync(login.Username);
 
@@ -111,6 +109,29 @@ public class AuthController : BaseController
                 Convert.ToDouble(_configuration["Jwt:DurationInMinutes"])),
             signingCredentials: credentials
         );
+
+        return new JwtSecurityTokenHandler().WriteToken(token);
+    }
+
+    private string GenerateRefreshToken(string username)
+    {
+        var claims = new List<Claim>
+        {
+            new Claim(ClaimTypes.Name, username),
+            // Voeg eventueel andere claims toe die u nodig heeft
+            new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString())
+        };
+
+        var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration["Jwt:RefreshTokenKey"]));
+        var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
+
+        var token = new JwtSecurityToken(
+            issuer: _configuration["Jwt:Issuer"],
+            audience: _configuration["Jwt:Audience"],
+            claims: claims,
+            expires: DateTime.Now.AddDays(
+                Convert.ToDouble(_configuration["Jwt:RefreshTokenDurationInDays"])),
+            signingCredentials: creds);
 
         return new JwtSecurityTokenHandler().WriteToken(token);
     }
