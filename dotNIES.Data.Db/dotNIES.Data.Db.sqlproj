@@ -85,6 +85,7 @@
     <Build Include="fin\Tables\GeneralLedger.sql" />
     <Build Include="fin\Tables\GeneralLedgerDetail.sql" />
     <Build Include="fin\Tables\PaymentType.sql" />
+    <Build Include="dbo\Tables\UserToken.sql" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Publish\dotNIES.Data.Db.publish.xml" />

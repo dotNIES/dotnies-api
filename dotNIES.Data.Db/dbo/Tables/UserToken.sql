@@ -1,0 +1,10 @@
+﻿CREATE TABLE [dbo].[UserToken]
+(
+	[Id]			UNIQUEIDENTIFIER	NOT NULL PRIMARY KEY,
+	[CreatedAt]		DATETIME2(7)		NOT NULL,
+	[ExpiresAt]		DATETIME2(7)		NOT NULL,
+	[User]			NVARCHAR(128)		NOT NULL,
+	[Token]			NVARCHAR(256)		NULL,
+	[RefreshToken]	NVARCHAR(256)		NULL,
+	[IsRevoked]		BIT					NOT NULL,
+)
