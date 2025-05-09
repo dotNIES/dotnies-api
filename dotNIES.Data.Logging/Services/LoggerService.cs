@@ -34,13 +34,65 @@ public class LoggerService : ILoggerService
     [Obsolete("Do not use this method anymore", true)]
     public Guid GetUserLoggerId() => _userLoggerInfoModel.UserLoggerInfoId;
 
+    /// <summary>
+    /// Logs debug information to the configured sinks.
+    /// </summary>
+    /// <param name="message">The message to log</param>
+    /// <param name="exception">Optional exception to include</param>
+    /// <remarks>
+    /// <para>
+    /// WARNING: This is a synchronous method and may block the executing thread.
+    /// Consider using <see cref="SendDebugInfoAsync"/> for better performance.
+    /// </para>
+    /// </remarks>
     public void SendDebugInfo(string message, Exception? exception = null) => Send(LogLevel.Information, message, exception);
 
+    /// <summary>
+    /// Logs information to the configured sinks.
+    /// </summary>
+    /// <param name="message">The message to log</param>
+    /// <param name="exception">Optional exception to include</param>
+    /// <remarks>
+    /// <para>
+    /// WARNING: This is a synchronous method and may block the executing thread.
+    /// Consider using <see cref="SendInformationAsync"/> for better performance.
+    /// </para>
+    /// </remarks>
     public void SendInformation(string message, Exception? exception = null) => Send(LogLevel.Information, message, exception);
 
+    /// <summary>
+    /// Logs warning to the configured sinks.
+    /// </summary>
+    /// <param name="message">The message to log</param>
+    /// <param name="exception">Optional exception to include</param>
+    /// <remarks>
+    /// <para>
+    /// WARNING: This is a synchronous method and may block the executing thread.
+    /// Consider using <see cref="SendWarningAsync"/> for better performance.
+    /// </para>
+    /// </remarks>
     public void SendWarning(string message, Exception? exception = null) => Send(LogLevel.Warning, message, exception);
 
+    /// <summary>
+    /// Logs error to the configured sinks.
+    /// </summary>
+    /// <param name="message">The message to log</param>
+    /// <param name="exception">Optional exception to include</param>
+    /// <remarks>
+    /// <para>
+    /// WARNING: This is a synchronous method and may block the executing thread.
+    /// Consider using <see cref="SendErrorAsync"/> for better performance.
+    /// </para>
+    /// </remarks>
     public void SendError(string message, Exception? exception = null) => Send(LogLevel.Error, message, exception);
+
+    public Task SendDebugInfoAsync(string message, Exception? exception = null) => SendAsync(LogLevel.Information, message, exception);
+
+    public Task SendInformationAsync(string message, Exception? exception = null) => SendAsync(LogLevel.Information, message, exception);
+
+    public Task SendWarningAsync(string message, Exception? exception = null) => SendAsync(LogLevel.Warning, message, exception);
+
+    public Task SendErrorAsync(string message, Exception? exception = null) => SendAsync(LogLevel.Error, message, exception);
 
     private void InitializeSerilog()
     {
@@ -168,5 +220,23 @@ public class LoggerService : ILoggerService
         };
 
         WeakReferenceMessenger.Default.Send(logMessage);
+    }
+
+    /// <summary>
+    /// Sends a log message asynchronously to the configured sinks.
+    /// </summary>
+    /// <param name="level">The log level</param>
+    /// <param name="message">The message to log</param>
+    /// <param name="exception">Optional exception to include</param>
+    /// <returns>A Task representing the asynchronous operation</returns>
+    private Task SendAsync(LogLevel level, string message, Exception? exception)
+    {
+        var logMessage = new LogMessageModel
+        {
+            LogLevel = level,
+            Message = message,
+            Exception = exception
+        };
+        return Task.Run(() => WeakReferenceMessenger.Default.Send(logMessage));
     }
 }
