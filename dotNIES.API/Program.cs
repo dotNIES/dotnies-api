@@ -235,8 +235,8 @@ void InitializeBaseObjects(IServiceProvider serviceProvider)
         WeakReferenceMessenger.Default.Send(new LogMessage(logMessage));
     }
 
-    var seeder = new IdentitySeeder(userAppInfoDto.ConnectionString);
-    seeder.SeedAccounts();
+    //var seeder = new IdentitySeeder(userAppInfoDto.ConnectionString);
+    //seeder.SeedAccounts();
 }
 
 void ConfigureMiddleware(WebApplication app)
