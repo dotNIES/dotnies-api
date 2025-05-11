@@ -260,10 +260,13 @@ void ConfigureMiddleware(WebApplication app)
         c.SwaggerEndpoint("/swagger/v1/swagger.json", ".Nies API v1");
     });
 
-    app.MapAreaControllerRoute(
-        name: "areas",
-        areaName: "common",
-        pattern: "{area:exists}/{controller}/{action=Index}/{id?}");
+    app.MapControllerRoute(
+        name: "MyArea",
+        pattern: "{area:exists}/{controller=Home}/{action=Index}/{id?}");
+
+    app.MapControllerRoute(
+    name: "default",
+    pattern: "{controller=Home}/{action=Index}/{id?}");
 
     app.MapControllers();
 }
