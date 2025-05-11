@@ -3,19 +3,33 @@ using dotNIES.API.Core.Repositories;
 using dotNIES.API.Core.Repositories.Common;
 using dotNIES.API.Core.Repositories.Finance;
 using dotNIES.API.Core.Repositories.Internal;
+using dotNIES.API.Helpers;
 using dotNIES.Data.Dto.Internal;
 using dotNIES.Data.Logging.Messages;
 using dotNIES.Data.Logging.Models;
 using dotNIES.Data.Logging.Services;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
+using System.Diagnostics.Metrics;
 using System.Text;
+using System.Threading.Tasks;
 
 var builder = WebApplication.CreateBuilder(args);
 
 RegisterDI(builder.Services);
 ConfigureServices(builder.Services);
+
+var connectionString = builder.Configuration["TestConnectionString"]; //.GetConnectionString("DefaultConnection");
+
+builder.Services.AddDbContext<ApplicationDbContext>(options =>
+    options.UseSqlServer(connectionString));
+
+builder.Services.AddIdentity<IdentityUser, IdentityRole>()
+    .AddEntityFrameworkStores<ApplicationDbContext>()
+    .AddDefaultTokenProviders();
 
 var app = builder.Build();
 InitializeBaseObjects(app.Services);
@@ -220,6 +234,9 @@ void InitializeBaseObjects(IServiceProvider serviceProvider)
         };
         WeakReferenceMessenger.Default.Send(new LogMessage(logMessage));
     }
+
+    var seeder = new IdentitySeeder(userAppInfoDto.ConnectionString);
+    seeder.SeedAccounts();
 }
 
 void ConfigureMiddleware(WebApplication app)
