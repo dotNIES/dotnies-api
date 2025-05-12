@@ -3,7 +3,6 @@ using dotNIES.API.Core.Repositories;
 using dotNIES.API.Core.Repositories.Common;
 using dotNIES.API.Core.Repositories.Finance;
 using dotNIES.API.Core.Repositories.Internal;
-using dotNIES.API.Helpers;
 using dotNIES.Data.Dto.Internal;
 using dotNIES.Data.Logging.Messages;
 using dotNIES.Data.Logging.Models;
@@ -11,11 +10,12 @@ using dotNIES.Data.Logging.Services;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
-using System.Diagnostics.Metrics;
+using System.IdentityModel.Tokens.Jwt;
 using System.Text;
-using System.Threading.Tasks;
+using System.Text.Json;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -80,6 +80,38 @@ void ConfigureServices(IServiceCollection services)
     })
     .AddJwtBearer(options =>
     {
+        options.Events = new JwtBearerEvents
+        {
+            OnMessageReceived = context =>
+            {
+                Console.WriteLine("OnMessageReceived called");
+                Console.WriteLine($"Token: {context.Token}");
+                return Task.CompletedTask;
+            },
+            OnTokenValidated = context =>
+            {
+                Console.WriteLine("OnTokenValidated called");
+                Console.WriteLine($"Principal: {context.Principal}");
+
+                // Extra logging van claims
+                if (context.Principal != null)
+                {
+                    foreach (var claim in context.Principal.Claims)
+                    {
+                        Console.WriteLine($"Claim: {claim.Type} - {claim.Value}");
+                    }
+                }
+
+                return Task.CompletedTask;
+            },
+            OnAuthenticationFailed = context =>
+            {
+                Console.WriteLine("OnAuthenticationFailed called");
+                Console.WriteLine($"Exception: {context.Exception}");
+                return Task.CompletedTask;
+            }
+        };
+
         options.TokenValidationParameters = new TokenValidationParameters
         {
             ValidateIssuer = true,
@@ -89,7 +121,16 @@ void ConfigureServices(IServiceCollection services)
             ValidIssuer = builder.Configuration["Jwt:Issuer"],
             ValidAudience = builder.Configuration["Jwt:Audience"],
             IssuerSigningKey = new SymmetricSecurityKey(
-                Encoding.UTF8.GetBytes(builder.Configuration["Jwt:Key"]))
+        Encoding.UTF8.GetBytes(builder.Configuration["Jwt:Key"]))
+        };
+    });
+
+    builder.Services.ConfigureApplicationCookie(options =>
+    {
+        options.Events.OnRedirectToLogin = context =>
+        {
+            context.Response.StatusCode = 401;
+            return Task.CompletedTask;
         };
     });
 }
@@ -241,18 +282,6 @@ void InitializeBaseObjects(IServiceProvider serviceProvider)
 
 void ConfigureMiddleware(WebApplication app)
 {
-    // Poort instellen
-    var port = Environment.GetEnvironmentVariable("PORT") ?? "8080";
-    app.Urls.Add($"http://0.0.0.0:{port}");
-
-    app.UseStaticFiles();
-    app.UseRouting();
-
-    //app.UseHttpsRedirection();
-
-    app.UseAuthentication();
-    app.UseAuthorization();
-
     app.MapHealthChecks("/");
     app.UseSwagger();
     app.UseSwaggerUI(c =>
@@ -260,13 +289,58 @@ void ConfigureMiddleware(WebApplication app)
         c.SwaggerEndpoint("/swagger/v1/swagger.json", ".Nies API v1");
     });
 
-    app.MapControllerRoute(
-        name: "MyArea",
-        pattern: "{area:exists}/{controller=Home}/{action=Index}/{id?}");
+    // Poort instellen
+    //var port = Environment.GetEnvironmentVariable("PORT") ?? "8080";
+    //app.Urls.Add($"http://0.0.0.0:{port}");
+    //app.Urls.Add($"http://localhost:8080");
 
-    app.MapControllerRoute(
-    name: "default",
-    pattern: "{controller=Home}/{action=Index}/{id?}");
+    //app.UseStaticFiles();
+    app.UseRouting();
 
-    app.MapControllers();
+    app.Use(async (context, next) =>
+    {
+        var token = context.Request.Headers["Authorization"].FirstOrDefault()?.Split(" ").Last();
+
+        if (!string.IsNullOrEmpty(token))
+        {
+            try
+            {
+                var tokenHandler = new JwtSecurityTokenHandler();
+                var key = Encoding.UTF8.GetBytes(app.Configuration.GetValue<string>("Jwt:Key"));
+
+                var validationParameters = new TokenValidationParameters
+                {
+                    ValidateIssuerSigningKey = true,
+                    IssuerSigningKey = new SymmetricSecurityKey(key),
+                    ValidateIssuer = true,
+                    ValidIssuer = app.Configuration.GetValue<string>("Jwt:Issuer"),
+                    ValidateAudience = true,
+                    ValidAudience = app.Configuration.GetValue<string>("Jwt:Audience"),
+                    ValidateLifetime = true,
+                    ClockSkew = TimeSpan.Zero
+                };
+
+                var principal = tokenHandler.ValidateToken(token, validationParameters, out _);
+
+                // Vervang de huidige principal
+                context.User = principal;
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Token validation failed: {ex.Message}");
+            }
+        }
+
+        await next();
+    });
+
+    //app.UseHttpsRedirection();
+
+    app.UseAuthentication();
+    app.UseAuthorization();
+
+    app.UseEndpoints(endpoint =>
+    {
+        endpoint.MapControllers();
+    });
 }

@@ -5,6 +5,7 @@ using dotNIES.Data.Logging.Services;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.IdentityModel.Tokens;
+using System.Diagnostics;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
@@ -199,6 +200,11 @@ public class AuthController : BaseController
                 Convert.ToDouble(_configuration["Jwt:DurationInMinutes"])),
             signingCredentials: credentials
         );
+
+        var tokenString = new JwtSecurityTokenHandler().WriteToken(token);
+
+        // Log de gegenereerde token (alleen in development!)
+        _loggerService.SendInformation($"Generated token length: {tokenString.Length}");
 
         return new JwtSecurityTokenHandler().WriteToken(token);
     }
