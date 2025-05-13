@@ -37,8 +37,8 @@ public class AuthController : BaseController
         _baseRepository = baseRepository;
     }
 
-    [HttpPost("login/{login}")]
-    public async Task<IActionResult> Login(LoginModel login)
+    [HttpPost("login")]
+    public async Task<IActionResult> Login([FromBody] LoginModel login)
     {
         var isValid = await IsValidUser(login);
 
@@ -60,7 +60,7 @@ public class AuthController : BaseController
         return Unauthorized();
     }
 
-    [HttpPost("refresh-token/{request}")]
+    [HttpPost("refresh-token")]
     public async Task<IActionResult> RefreshToken(RefreshTokenModel request)
     {
         if (string.IsNullOrEmpty(request.RefreshToken))

@@ -32,4 +32,8 @@
     <ProjectReference Include="..\..\dotNIES.Data\dotNIES.Data.Logging\dotNIES.Data.Logging.csproj" />
     <ProjectReference Include="..\dotNIES.API.Core\dotNIES.API.Core.csproj" />
   </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="logs\" />
+  </ItemGroup>
 </Project>
