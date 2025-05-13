@@ -1,6 +1,8 @@
-﻿namespace dotNIES.Data.Dto.Internal;
+﻿using System.Text.Json.Serialization;
+
+namespace dotNIES.Data.Dto.Internal;
 public class LoginModel
 {
-    public string Username { get; set; } = "gebruiker"; // TODO: haal deze weg! string.Empty;
-    public string Password { get; set; } = "wachtwoord"; // TODO: haal deze weg! string.Empty;
+    [JsonPropertyName("username")]  public string Username { get; set; }
+    [JsonPropertyName("password")] public string Password { get; set; }
 }
