@@ -10,8 +10,7 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace dotNIES.API.Areas.common.Controllers;
 
-[Area("common")]
-[Route("api/[area]/[controller]")]
+[Route("api/[controller]")]
 [ApiController]
 [Authorize]
 public class CategoryController : BaseController

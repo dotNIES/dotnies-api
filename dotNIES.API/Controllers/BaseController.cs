@@ -17,4 +17,13 @@ public class BaseController : ControllerBase
         _appInfoDto = appInfoDto;
         _userAppInfoDto = userAppInfoDto;
     }
+
+    protected IActionResult HandleUnauthorized()
+    {
+        return Unauthorized(new
+        {
+            Message = "Unauthorized",
+            StatusCode = StatusCodes.Status401Unauthorized,
+        });
+    }
 }

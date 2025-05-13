@@ -7,7 +7,8 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace dotNIES.API.Areas.fin.Controllers;
-[Route("api/[controller]")]
+[Area("fin")]
+[Route("api/[area]/[controller]")]
 [ApiController]
 [Authorize]
 public class GeneralLedgerDetailController(ILoggerService loggerService,
