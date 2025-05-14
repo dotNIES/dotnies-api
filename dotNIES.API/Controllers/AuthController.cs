@@ -101,7 +101,7 @@ public class AuthController : BaseController
             if (string.IsNullOrEmpty(refreshToken) || string.IsNullOrEmpty(username))
                 throw new ArgumentNullException(nameof(refreshToken));
 
-            await _baseRepository.InsertAsync<UserTokenDto>(new UserTokenDto
+            await _baseRepository.InsertAsync<UserTokenModel>(new UserTokenModel
             {
                 Id = Guid.NewGuid(),
                 IsRevoked = false,
@@ -110,7 +110,7 @@ public class AuthController : BaseController
                 CreatedAt = DateTime.UtcNow,
                 ExpiresAt = DateTime.UtcNow.AddDays(
                     Convert.ToDouble(_configuration["Jwt:RefreshTokenDurationInDays"]))
-            });
+            }, true);
 
             _loggerService.SendInformation($"Refresh token for {username} saved.");
         }
@@ -128,7 +128,7 @@ public class AuthController : BaseController
             if (string.IsNullOrEmpty(username))
                 throw new ArgumentNullException(nameof(username));
 
-            var result = await _baseRepository.GetDataAsync<UserTokenDto>(
+            var result = await _baseRepository.GetDataAsync<UserTokenModel>(
                         $"SELECT TOP(1) * FROM UserTokens WHERE User = '{username}' AND " +
                         $"ExpiresAt >= '{DateTime.Now}' ORDER BY ExpiresAt DESC");
 
