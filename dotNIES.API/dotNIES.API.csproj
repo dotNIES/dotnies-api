@@ -16,6 +16,8 @@
   <ItemGroup>
     <PackageReference Include="CommunityToolkit.Common" />
     <PackageReference Include="CommunityToolkit.Mvvm" />
+    <PackageReference Include="dotNIES.Data.Dto" />
+    <PackageReference Include="dotNIES.Data.Logging" />
     <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" />
     <PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" />
     <PackageReference Include="Microsoft.EntityFrameworkCore" />
@@ -28,8 +30,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\dotNIES.Data\dotNIES.Data.Dto\dotNIES.Data.Dto.csproj" />
-    <ProjectReference Include="..\..\dotNIES.Data\dotNIES.Data.Logging\dotNIES.Data.Logging.csproj" />
     <ProjectReference Include="..\dotNIES.API.Core\dotNIES.API.Core.csproj" />
   </ItemGroup>
 
